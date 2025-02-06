@@ -1,0 +1,22 @@
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import uid from "uid2"
+
+export default function NewGame() {
+    const router = useRouter()
+    const [channels, setChannels] = useState({});
+    useEffect(() => {
+        (async () => {
+            const response = await fetch("http://localhost:3000/pusher/channels");
+            const data = await response.json();
+            setChannels(data.channels);
+        })();
+    }, []);
+    const handleClick = (channel : string) =>{
+        router.push(`game/${channel}/${uid(10)}`);
+    }
+    console.log("channels :", channels);
+    const Serveurs = Object.keys(channels).map((serveur: any) => <button key={serveur} onClick={()=>handleClick(serveur)}>{serveur}</button>);
+
+    return <div>{Serveurs}</div>;
+}

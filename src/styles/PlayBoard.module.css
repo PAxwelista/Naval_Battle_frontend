@@ -1,0 +1,21 @@
+.main {
+    background-color: blanchedalmond;
+}
+.boardGame {
+    background-color: coral;
+}
+.firstLine {
+    display: flex;
+    background-color: aquamarine;
+}
+.othersLines {
+    display: flex;
+}
+.case {
+    background-color: burlywood;
+    height: 40px;
+    width: 40px;
+    border: solid black 1px;
+    text-align: center;
+    line-height: 40px;
+}
