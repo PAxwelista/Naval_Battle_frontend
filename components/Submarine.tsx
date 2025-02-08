@@ -25,15 +25,20 @@ export default function Submarine({ posX, posY, size, handleDragStart, index, ho
     const onStartDrag = (event: React.MouseEvent) => {
         setIsDragging(true);
         const target = event.target as HTMLTextAreaElement;
+        const shiftX = event.pageX - target.offsetLeft;
+        const shiftY = event.clientY - target.offsetTop;
+        const pos = Math.floor(
+            horizontal ? shiftX / (target.offsetWidth / size) : shiftY / (target.offsetHeight / size)
+        );
         //On teste d'abord si il a un element parent (le cas ou on clique en dehors des ronds rouge si c'est null)
         //on prend l'élément direct
         handleDragStart({
             horizontal,
-            pos: 1,
+            pos,
             size,
             index,
-            shiftX: event.pageX - (target.parentElement?.offsetLeft || target.offsetLeft),
-            shiftY: event.clientY - (target.parentElement?.offsetTop || target.offsetTop),
+            shiftX,
+            shiftY,
         });
     };
     const onEndDrag = () => {
@@ -57,10 +62,18 @@ export default function Submarine({ posX, posY, size, handleDragStart, index, ho
         >
             {Array.from({ length: size }, (_, i) => i + 1).map((_, i) => (
                 <div
+                    onMouseDown={() => false}
                     key={i}
                     className={styles.submarineSection}
+                    style={{ pointerEvents: "none" }} // peremt de ne sélectionner que le parent
                 ></div>
             ))}
         </div>
     );
 }
+
+// const getSubInfos = (subWidth: number, subHeigth: number, posClickX: number, posClickY: number) => {
+//     const horizontal = subWidth > subHeigth;
+//     const pos = Math.floor(horizontal ? posClickX / (subWidth / size) : posClickY / (subHeigth / size));
+//     return { horizontal, pos, size, index };
+// };

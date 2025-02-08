@@ -30,33 +30,37 @@ export default function Game({ gameName, token }: gameProps) {
     });
 
     useEffect(() => {
-        const channel = pusher.subscribe(gameName);
+        const channel = pusher.subscribe("presence-"+gameName);
         channel.bind("mess", (message: any) => {
             alert(message);
         });
         return () => {
-            pusher.unsubscribe(gameName);
+            pusher.unsubscribe("presence-"+gameName);
             channel.disconnect();
         };
     }, []);
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
-            setSubmarines(subs =>
-                subs.map(sub =>
-                    sub.index === subDragInfos.index
-                        ? {
-                              posX: sub.posX,
-                              posY: sub.posY,
-                              size: sub.size,
-                              index: sub.index,
-                              horizontal: !sub.horizontal,
-                          }
-                        : sub
-                )
-            );
+            rotateSub()
         }
     };
+
+    const rotateSub=()=>{
+        setSubmarines(subs =>
+            subs.map(sub =>
+                sub.index === subDragInfos.index
+                    ? {
+                          posX: sub.posX,
+                          posY: sub.posY,
+                          size: sub.size,
+                          index: sub.index,
+                          horizontal: !sub.horizontal,
+                      }
+                    : sub
+            )
+        );
+    }
 
     const handleDragStart = (dragInfos: {
         horizontal: boolean;
@@ -70,7 +74,6 @@ export default function Game({ gameName, token }: gameProps) {
     };
 
     const onMouseMove = (event: React.MouseEvent) => {
-        //const target = event.target as HTMLTextAreaElement;
         if (subDragInfos.index >= 0) {
             moveSub(subDragInfos.index, event.pageX - subDragInfos.shiftX, event.pageY - subDragInfos.shiftY);
         }
@@ -86,6 +89,10 @@ export default function Game({ gameName, token }: gameProps) {
     const onMouseUp = () => {
         setSubDragInfos
     };
+
+    const gameStart = ()=>{
+        console.log("start the game")
+    }
 
     return (
         <div
@@ -107,7 +114,7 @@ export default function Game({ gameName, token }: gameProps) {
                     handleDragStart={handleDragStart}
                 />
             ))}
-            <button onClick={() => moveSub(0, 20, 60)}>here</button>
+            <button onClick={gameStart}>Start game</button>
         </div>
     );
 }

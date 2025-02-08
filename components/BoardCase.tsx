@@ -25,14 +25,13 @@ export default function BoardCase({
             className={styles.main}
             onMouseOver={() => subDragInfos.index >= 0 && onDragEnter(pos)}
             onMouseLeave={() => subDragInfos.index >= 0 && onDragLeave(pos)}
-            onMouseUp={() => subDragInfos.index >= 0 && onDrop(pos)}
+            onMouseUp={(event) => subDragInfos.index >= 0 && onDrop(pos,event)}
             style={dragItemHover}
             onDragOver={e => {
                 e.stopPropagation();
                 e.preventDefault();
             }}
         >
-            {ship && <div className={styles.submarine}></div>}
         </div>
     );
 }

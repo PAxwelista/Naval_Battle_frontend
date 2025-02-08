@@ -15,7 +15,23 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
     // initialise un tableau deux entrée avec des 0 correspondant au jeu,
     // un chiffre qui correspond au numéro du tableau pour un vaisseau placé et P pour le passage de la souris
 
-    console.log(subDragInfos);
+    const canFitInCase = (x: number, y: number) => {
+        if (subDragInfos.horizontal) {
+            if (x + (subDragInfos.size - subDragInfos.pos) > columnTitle.length) return false;
+        } else {
+            if (y + (subDragInfos.size - subDragInfos.pos) > lineTitle.length) return false;
+        }
+        if (
+            newPositionsTab({ x, y }, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos).some(pos => {
+                const valueInLine = shipsPos[pos.y];
+                if (valueInLine === undefined) return true;
+                const valueInCase = valueInLine[pos.x];
+                return valueInCase != "-" && valueInCase != "P" && valueInCase != subDragInfos.index.toString();
+            })
+        )
+            return false;
+        return true;
+    };
 
     const changeBoard = (positions: { x: number; y: number }[], newValue: string) => {
         setShipsPos(shipsPos =>
@@ -36,28 +52,28 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
         });
 
     const onDragEnter = (pos: { x: number; y: number }) => {
-        console.log("enter");
-
-        console.log(shipsPos);
-
-        shipsPos[pos.y][pos.x] === "-" &&
+        canFitInCase(pos.x, pos.y) &&
             changeBoard(newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos), "P");
     };
     const onDragLeave = (pos: { x: number; y: number }) => {
         setShipsPos(shipspos => shipspos.map(line => line.map(boardCase => (boardCase === "P" ? "-" : boardCase))));
     };
-    const onDrop = (event: DragEvent, pos: { x: number; y: number }) => {
-        console.log("test")
+    const onDrop = (pos: { x: number; y: number }, event: MouseEvent) => {
+        if (!canFitInCase(pos.x, pos.y)) return;
+
         const target = event.target as HTMLTextAreaElement;
-        const caseDragX = target.offsetLeft;
-        const caseDragY = target.offsetTop;
         removeOldSubPos(subDragInfos.index);
         changeBoard(
             newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos),
             subDragInfos.index.toString()
         );
-        moveSub(subDragInfos.index, caseDragX, caseDragY);
+        moveSub(
+            subDragInfos.index,
+            subDragInfos.horizontal ? target.offsetLeft - target.offsetWidth * subDragInfos.pos : target.offsetLeft,
+            subDragInfos.horizontal ? target.offsetTop : target.offsetTop - target.offsetHeight * subDragInfos.pos
+        );
     };
+
     const line = (firstLetter: string, i: number) => {
         return (
             <div
