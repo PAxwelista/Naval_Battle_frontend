@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "../src/styles/PlayBoard.module.css";
 import BoardCase from "./BoardCase";
 
-const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8,];
+const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 type playboardProps = {
@@ -14,7 +14,9 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
     const [shipsPos, setShipsPos] = useState(columnTitle.map(column => lineTitle.map(line => "-")));
     // initialise un tableau deux entrée avec des 0 correspondant au jeu,
     // un chiffre qui correspond au numéro du tableau pour un vaisseau placé et P pour le passage de la souris
-    console.log(shipsPos)
+
+    console.log(subDragInfos);
+
     const changeBoard = (positions: { x: number; y: number }[], newValue: string) => {
         setShipsPos(shipsPos =>
             shipsPos.map((shipPosLine, i) =>
@@ -24,7 +26,7 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
     };
     const removeOldSubPos = (index: number) => {
         setShipsPos(shipsPos =>
-            shipsPos.map((shipPosLine) => shipPosLine.map((val) => (Number(val) === index ? "-" : val)))
+            shipsPos.map(shipPosLine => shipPosLine.map(val => (Number(val) === index ? "-" : val)))
         );
     };
 
@@ -33,19 +35,23 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
             return horizontal ? { x: pos.x + nb - dragPos, y: pos.y } : { x: pos.x, y: pos.y + nb - dragPos };
         });
 
-    const onDragEnter = (pos: { x: number; y: number }) =>
+    const onDragEnter = (pos: { x: number; y: number }) => {
+        console.log("enter");
+
+        console.log(shipsPos);
+
         shipsPos[pos.y][pos.x] === "-" &&
-        changeBoard(newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos), "P");
-
-    const onDragLeave = (pos: { x: number; y: number }) =>
-        shipsPos[pos.y][pos.x] === "P" &&
-        changeBoard(newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos), "-");
-
+            changeBoard(newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos), "P");
+    };
+    const onDragLeave = (pos: { x: number; y: number }) => {
+        setShipsPos(shipspos => shipspos.map(line => line.map(boardCase => (boardCase === "P" ? "-" : boardCase))));
+    };
     const onDrop = (event: DragEvent, pos: { x: number; y: number }) => {
+        console.log("test")
         const target = event.target as HTMLTextAreaElement;
         const caseDragX = target.offsetLeft;
         const caseDragY = target.offsetTop;
-        removeOldSubPos(subDragInfos.index)
+        removeOldSubPos(subDragInfos.index);
         changeBoard(
             newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos),
             subDragInfos.index.toString()
@@ -68,6 +74,7 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
                         onDragEnter={onDragEnter}
                         onDrop={onDrop}
                         onDragLeave={onDragLeave}
+                        subDragInfos={subDragInfos}
                     />
                 ))}
             </div>

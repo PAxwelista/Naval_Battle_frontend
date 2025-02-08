@@ -7,17 +7,26 @@ type caseProps = {
     onDragEnter: Function;
     onDrop: Function;
     onDragLeave: Function;
+    subDragInfos: { horizontal: boolean; pos: number; size: number; index: number };
 };
 
-export default function BoardCase({ shipPassing, ship, pos, onDragEnter, onDrop, onDragLeave }: caseProps) {
+export default function BoardCase({
+    shipPassing,
+    ship,
+    pos,
+    onDragEnter,
+    onDrop,
+    onDragLeave,
+    subDragInfos,
+}: caseProps) {
     const dragItemHover = { backgroundColor: shipPassing ? "red" : "burlywood" };
     return (
         <div
             className={styles.main}
-            onDragEnter={() => onDragEnter(pos)}
-            onDragLeave={() => onDragLeave(pos)}
+            onMouseOver={() => subDragInfos.index >= 0 && onDragEnter(pos)}
+            onMouseLeave={() => subDragInfos.index >= 0 && onDragLeave(pos)}
+            onMouseUp={() => subDragInfos.index >= 0 && onDrop(pos)}
             style={dragItemHover}
-            onDrop={event => onDrop(event, pos)}
             onDragOver={e => {
                 e.stopPropagation();
                 e.preventDefault();
