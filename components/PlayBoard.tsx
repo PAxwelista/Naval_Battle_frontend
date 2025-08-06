@@ -6,22 +6,24 @@ const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 type playboardProps = {
-    subDragInfos: { horizontal: boolean; pos: number; size: number; index: number };
-    moveSub: Function;
+    subDragInfos: { horizontal: boolean; pos: number; size: number; index: number } | null;
+    moveSub: Function | null;
+    onClick: Function;
 };
 
-export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
+export default function PlayBoard({ subDragInfos, moveSub, onClick }: playboardProps) {
     const [shipsPos, setShipsPos] = useState(columnTitle.map(column => lineTitle.map(line => "-")));
     // initialise un tableau deux entrée avec des 0 correspondant au jeu,
     // un chiffre qui correspond au numéro du tableau pour un vaisseau placé et P pour le passage de la souris
 
     const canFitInCase = (x: number, y: number) => {
-        if (subDragInfos.horizontal) {
+        if (subDragInfos && subDragInfos.horizontal) {
             if (x + (subDragInfos.size - subDragInfos.pos) > columnTitle.length) return false;
-        } else {
+        } else if (subDragInfos) {
             if (y + (subDragInfos.size - subDragInfos.pos) > lineTitle.length) return false;
         }
         if (
+            subDragInfos &&
             newPositionsTab({ x, y }, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos).some(pos => {
                 const valueInLine = shipsPos[pos.y];
                 if (valueInLine === undefined) return true;
@@ -53,25 +55,30 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
 
     const onDragEnter = (pos: { x: number; y: number }) => {
         canFitInCase(pos.x, pos.y) &&
+            subDragInfos &&
             changeBoard(newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos), "P");
     };
     const onDragLeave = (pos: { x: number; y: number }) => {
         setShipsPos(shipspos => shipspos.map(line => line.map(boardCase => (boardCase === "P" ? "-" : boardCase))));
     };
     const onDrop = (pos: { x: number; y: number }, event: MouseEvent) => {
-        if (!canFitInCase(pos.x, pos.y)) return;
+        if (subDragInfos && moveSub && canFitInCase(pos.x, pos.y)) {
+            const target = event.target as HTMLTextAreaElement;
+            removeOldSubPos(subDragInfos.index);
+            changeBoard(
+                newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos),
+                subDragInfos.index.toString()
+            );
+            moveSub(
+                subDragInfos.index,
+                subDragInfos.horizontal ? target.offsetLeft - target.offsetWidth * subDragInfos.pos : target.offsetLeft,
+                subDragInfos.horizontal ? target.offsetTop : target.offsetTop - target.offsetHeight * subDragInfos.pos
+            );
+        }
+    };
 
-        const target = event.target as HTMLTextAreaElement;
-        removeOldSubPos(subDragInfos.index);
-        changeBoard(
-            newPositionsTab(pos, subDragInfos.horizontal, subDragInfos.size, subDragInfos.pos),
-            subDragInfos.index.toString()
-        );
-        moveSub(
-            subDragInfos.index,
-            subDragInfos.horizontal ? target.offsetLeft - target.offsetWidth * subDragInfos.pos : target.offsetLeft,
-            subDragInfos.horizontal ? target.offsetTop : target.offsetTop - target.offsetHeight * subDragInfos.pos
-        );
+    const handleClick = (pos: { x: number; y: number }) => {
+        onClick(pos);
     };
 
     const line = (firstLetter: string, i: number) => {
@@ -85,12 +92,12 @@ export default function PlayBoard({ subDragInfos, moveSub }: playboardProps) {
                     <BoardCase
                         key={i.toString() + " " + j.toString()}
                         shipPassing={shipsPos[i][j] === "P"}
-                        ship={Number(shipsPos[i][j]) >= 0}
                         pos={{ x: j, y: i }}
                         onDragEnter={onDragEnter}
                         onDrop={onDrop}
                         onDragLeave={onDragLeave}
-                        subDragInfos={subDragInfos}
+                        subDragInfos={subDragInfos ? subDragInfos : null}
+                        onClick={handleClick}
                     />
                 ))}
             </div>

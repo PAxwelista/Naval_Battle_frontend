@@ -1,3 +1,7 @@
 .main {
     background-color: blanchedalmond;
 }
+.playBoards{
+    display: flex;
+    justify-content:space-around;
+}

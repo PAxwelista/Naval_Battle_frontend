@@ -13,7 +13,7 @@ export default function NewGame() {
         })();
     }, []);
     const handleClick = (channel : string) =>{
-        router.push(`game/${channel}/${uid(10)}`);
+        router.push(`game/${channel.substring(9)}/${uid(10)}`);
     }
     console.log("channels :", channels);
     const Serveurs = Object.keys(channels).map((serveur: any) => <button key={serveur} onClick={()=>handleClick(serveur)}>{serveur}</button>);

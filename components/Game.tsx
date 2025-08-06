@@ -11,6 +11,7 @@ type gameProps = {
 
 const pusher = new pusherJs("1efb5cc2be2496875fb4", {
     cluster: "eu",
+    channelAuthorization: { transport: "ajax", endpoint: "http://localhost:3000/pusher/auth" },
 });
 
 const initialSubmarines = [
@@ -28,25 +29,29 @@ export default function Game({ gameName, token }: gameProps) {
         shiftX: -1,
         shiftY: -1,
     });
+    const [isGameStart, setIsGameStart] = useState(false);
 
     useEffect(() => {
-        const channel = pusher.subscribe("presence-"+gameName);
-        channel.bind("mess", (message: any) => {
-            alert(message);
-        });
+        const channel = pusher.subscribe("presence-cache-" + gameName);
+        channel.bind("maps", bind);
         return () => {
-            pusher.unsubscribe("presence-"+gameName);
+            pusher.unsubscribe("presence-cache-" + gameName);
+            channel.unbind("maps", bind);
             channel.disconnect();
         };
     }, []);
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
-            rotateSub()
+            rotateSub();
         }
     };
 
-    const rotateSub=()=>{
+    const bind = (message: any) => {
+        console.log(message);
+    };
+
+    const rotateSub = () => {
         setSubmarines(subs =>
             subs.map(sub =>
                 sub.index === subDragInfos.index
@@ -60,7 +65,7 @@ export default function Game({ gameName, token }: gameProps) {
                     : sub
             )
         );
-    }
+    };
 
     const handleDragStart = (dragInfos: {
         horizontal: boolean;
@@ -70,7 +75,7 @@ export default function Game({ gameName, token }: gameProps) {
         shiftX: number;
         shiftY: number;
     }) => {
-        setSubDragInfos(dragInfos);
+        !isGameStart && setSubDragInfos(dragInfos);
     };
 
     const onMouseMove = (event: React.MouseEvent) => {
@@ -87,12 +92,26 @@ export default function Game({ gameName, token }: gameProps) {
         );
     }
     const onMouseUp = () => {
-        setSubDragInfos
+        setSubDragInfos;
     };
 
-    const gameStart = ()=>{
-        console.log("start the game")
-    }
+    const gameStart = () => {
+        setIsGameStart(true);
+        console.log("start the game");
+        fetch("http://localhost:3000/pusher/newGame", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ channel: gameName, map: "example1" }),
+        })
+            .then(response => response.json())
+            .then(data => console.log(data));
+    };
+
+    const handleClick = (pos : {x : number, y:number}) => {
+        isGameStart && console.log(pos);
+    };
 
     return (
         <div
@@ -103,10 +122,19 @@ export default function Game({ gameName, token }: gameProps) {
             onMouseUp={onMouseUp}
         >
             Game : {gameName} / token : {token}
-            <PlayBoard
-                subDragInfos={subDragInfos}
-                moveSub={moveSub}
-            />
+            <div className={styles.playBoards}>
+                <PlayBoard
+                    subDragInfos={subDragInfos}
+                    moveSub={moveSub}
+                    onClick={() => null}
+                />
+
+                <PlayBoard
+                    subDragInfos={null}
+                    moveSub={null}
+                    onClick={handleClick}
+                />
+            </div>
             {submarines.map((submarine, i) => (
                 <Submarine
                     key={i}
