@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import uid from "uid2"
 
-export default function NewGame() {
+const JoinGame=()=> {
     const router = useRouter()
     const [channels, setChannels] = useState({});
     useEffect(() => {
@@ -16,7 +16,9 @@ export default function NewGame() {
         router.push(`game/${channel.substring(9)}/${uid(10)}`);
     }
     console.log("channels :", channels);
-    const Serveurs = Object.keys(channels).map((serveur: any) => <button key={serveur} onClick={()=>handleClick(serveur)}>{serveur}</button>);
+    const Serveurs = Object.keys(channels).map((serveur: string) => <button key={serveur} onClick={()=>handleClick(serveur)}>{serveur}</button>);
 
     return <div>{Serveurs}</div>;
 }
+
+export {JoinGame}

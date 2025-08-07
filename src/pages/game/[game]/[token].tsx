@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Game from "../../../../components/Game";
+import { Game } from "@/components";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 

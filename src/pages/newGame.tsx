@@ -1,5 +1,5 @@
 import Head from "next/head";
-import NewGame from "../../components/NewGame";
+import { NewGame } from "@/components";
 
 export default function NewGamePage() {
     return (

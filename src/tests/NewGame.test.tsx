@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
-import NewGame from "../components/NewGame";
+import {NewGame} from "../components";
 import router from 'next-router-mock';
 import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 

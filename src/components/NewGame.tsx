@@ -1,10 +1,10 @@
 import { useState } from "react";
-import useOnChange from "../customHooks/useOnChange"
+import useOnChange from "@/customHooks/useOnChange"
 import { useRouter } from "next/router";
-import styles from "../src/styles/NewGame.module.css";
+import styles from "@/styles/NewGame.module.css";
 import uid from "uid2"
 
-export default function NewGame() {
+const NewGame=()=> {
     const router = useRouter();
     const input = useOnChange("");
     const [erreurString, setErreurString] = useState("");
@@ -33,3 +33,5 @@ export default function NewGame() {
         </div>
     );
 }
+
+export {NewGame}

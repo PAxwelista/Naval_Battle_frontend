@@ -1,10 +1,11 @@
 import pusherJs from "pusher-js";
 import { useEffect, useState } from "react";
-import styles from "../src/styles/Game.module.css";
-import Submarine from "./Submarine";
-import PlayBoard from "./PlayBoard";
+import styles from "@/styles/Game.module.css";
+import { Submarine } from "./Submarine";
+import { BoardGame } from "./BoardGame";
+import { initialSubmarineType, SubDragInfosType } from "@/types";
 
-type gameProps = {
+type Props = {
     gameName: string;
     token: string;
 };
@@ -19,17 +20,19 @@ const initialSubmarines = [
     { posX: 660, posY: 40, size: 3, index: 1, horizontal: true },
 ];
 
-export default function Game({ gameName, token }: gameProps) {
-    const [submarines, setSubmarines] = useState(initialSubmarines);
-    const [subDragInfos, setSubDragInfos] = useState({
-        horizontal: true,
-        pos: -1,
-        size: -1,
-        index: -1,
-        shiftX: -1,
-        shiftY: -1,
-    });
-    const [isGameStart, setIsGameStart] = useState(false);
+const defaultSubDragInfos = {
+    horizontal: true,
+    dragSectionIndex: -1,
+    size: -1,
+    index: -1,
+    shiftX: -1,
+    shiftY: -1,
+};
+
+const Game = ({ gameName, token }: Props) => {
+    const [submarines, setSubmarines] = useState<initialSubmarineType[]>(initialSubmarines);
+    const [subDragInfos, setSubDragInfos] = useState<SubDragInfosType>(defaultSubDragInfos);
+    const [isGameStart, setIsGameStart] = useState<boolean>(false);
 
     useEffect(() => {
         const channel = pusher.subscribe("presence-cache-" + gameName);
@@ -47,7 +50,7 @@ export default function Game({ gameName, token }: gameProps) {
         }
     };
 
-    const bind = (message: any) => {
+    const bind = (message: string) => {
         console.log(message);
     };
 
@@ -65,16 +68,10 @@ export default function Game({ gameName, token }: gameProps) {
                     : sub
             )
         );
+        setSubDragInfos(prev => ({ ...prev, horizontal: !prev.horizontal }));
     };
 
-    const handleDragStart = (dragInfos: {
-        horizontal: boolean;
-        pos: number;
-        size: number;
-        index: number;
-        shiftX: number;
-        shiftY: number;
-    }) => {
+    const handleDragStart = (dragInfos: SubDragInfosType) => {
         !isGameStart && setSubDragInfos(dragInfos);
     };
 
@@ -84,13 +81,13 @@ export default function Game({ gameName, token }: gameProps) {
         }
     };
 
-    function moveSub(SubIndex: number, x: number, y: number) {
+    const moveSub = (SubIndex: number, x: number, y: number) => {
         setSubmarines(submarines =>
             submarines.map((v, i) =>
                 i != SubIndex ? v : { posX: x, posY: y, size: v.size, index: v.index, horizontal: v.horizontal }
             )
         );
-    }
+    };
     const onMouseUp = () => {
         setSubDragInfos;
     };
@@ -109,7 +106,7 @@ export default function Game({ gameName, token }: gameProps) {
             .then(data => console.log(data));
     };
 
-    const handleClick = (pos : {x : number, y:number}) => {
+    const handleClick = (pos: { x: number; y: number }) => {
         isGameStart && console.log(pos);
     };
 
@@ -123,15 +120,15 @@ export default function Game({ gameName, token }: gameProps) {
         >
             Game : {gameName} / token : {token}
             <div className={styles.playBoards}>
-                <PlayBoard
+                <BoardGame
                     subDragInfos={subDragInfos}
                     moveSub={moveSub}
                     onClick={() => null}
                 />
 
-                <PlayBoard
+                <BoardGame
                     subDragInfos={null}
-                    moveSub={null}
+                    moveSub={() => {}}
                     onClick={handleClick}
                 />
             </div>
@@ -145,4 +142,6 @@ export default function Game({ gameName, token }: gameProps) {
             <button onClick={gameStart}>Start game</button>
         </div>
     );
-}
+};
+
+export { Game };
