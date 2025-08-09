@@ -1,19 +1,17 @@
-import pusherJs from "pusher-js";
-import { useEffect, useState } from "react";
+
+import {  useState } from "react";
 import styles from "@/styles/Game.module.css";
 import { Submarine } from "./Submarine";
 import { BoardGame } from "./BoardGame";
 import { initialSubmarineType, SubDragInfosType } from "@/types";
+import { usePusherChannel } from "@/customHooks";
 
 type Props = {
     gameName: string;
     token: string;
 };
 
-const pusher = new pusherJs("1efb5cc2be2496875fb4", {
-    cluster: "eu",
-    channelAuthorization: { transport: "ajax", endpoint: "http://localhost:3000/pusher/auth" },
-});
+
 
 const initialSubmarines = [
     { posX: 30, posY: 20, size: 2, index: 0, horizontal: false },
@@ -33,16 +31,7 @@ const Game = ({ gameName, token }: Props) => {
     const [submarines, setSubmarines] = useState<initialSubmarineType[]>(initialSubmarines);
     const [subDragInfos, setSubDragInfos] = useState<SubDragInfosType>(defaultSubDragInfos);
     const [isGameStart, setIsGameStart] = useState<boolean>(false);
-
-    useEffect(() => {
-        const channel = pusher.subscribe("presence-cache-" + gameName);
-        channel.bind("maps", bind);
-        return () => {
-            pusher.unsubscribe("presence-cache-" + gameName);
-            channel.unbind("maps", bind);
-            channel.disconnect();
-        };
-    }, []);
+    usePusherChannel(gameName,"maps",(data)=>console.log(data))
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
@@ -50,9 +39,7 @@ const Game = ({ gameName, token }: Props) => {
         }
     };
 
-    const bind = (message: string) => {
-        console.log(message);
-    };
+    
 
     const rotateSub = () => {
         setSubmarines(subs =>

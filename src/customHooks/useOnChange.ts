@@ -1,7 +1,7 @@
 import { SetStateAction, useState } from "react"
 
 
-export default function useOnChange(initialValue:string){
+export function useOnChange(initialValue:string){
 
     const [value,setValue] = useState(initialValue)
 
