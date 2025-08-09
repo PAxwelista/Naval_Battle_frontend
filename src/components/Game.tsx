@@ -1,17 +1,16 @@
-
-import {  useState } from "react";
+import { useState } from "react";
 import styles from "@/styles/Game.module.css";
 import { Submarine } from "./Submarine";
 import { BoardGame } from "./BoardGame";
-import { initialSubmarineType, SubDragInfosType } from "@/types";
+import { Grid, initialSubmarineType, SubDragInfosType } from "@/types";
 import { usePusherChannel } from "@/customHooks";
+import { createEmptyGrid } from "@/utils";
 
 type Props = {
     gameName: string;
-    token: string;
+    isJoining: string;
+    playerId: string;
 };
-
-
 
 const initialSubmarines = [
     { posX: 30, posY: 20, size: 2, index: 0, horizontal: false },
@@ -27,19 +26,40 @@ const defaultSubDragInfos = {
     shiftY: -1,
 };
 
-const Game = ({ gameName, token }: Props) => {
+const Game = ({ gameName, isJoining, playerId }: Props) => {
+    const [playerGrid, setPlayerGrid] = useState<Grid>(createEmptyGrid("-", 8));
+    const [opponentGrid, setOpponentGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [submarines, setSubmarines] = useState<initialSubmarineType[]>(initialSubmarines);
     const [subDragInfos, setSubDragInfos] = useState<SubDragInfosType>(defaultSubDragInfos);
     const [isGameStart, setIsGameStart] = useState<boolean>(false);
-    usePusherChannel(gameName,"maps",(data)=>console.log(data))
+    const [hasTwoPlayers, setHasTwoPlayers] = useState<boolean>(isJoining === "true");
+    const [nbPlayerReady , setNbPlayerReady] = useState<number>(0);
+    const [ready , setReady] = useState<boolean>(false)
+    usePusherChannel(
+        gameName,
+        ["joinGame", "initialiseBoard", "shoot"],
+        [handleJoinGame, handleInitialiseBoard, handleShoot]
+    );
+
+    function handleJoinGame(data: Record<string, string>): void {
+        setHasTwoPlayers(true);
+        console.log(data.info);
+    }
+    function handleInitialiseBoard(data: Record<string, string>): void {
+        const { playerId } = data;
+        setNbPlayerReady(nbPlayer=>nbPlayer+1)
+        console.log(playerId);
+    }
+    function handleShoot(data: Record<string, string>): void {
+        const { playerId, shootPos, shootInfos } = data;
+        console.log(playerId, shootPos, shootInfos);
+    }
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
             rotateSub();
         }
     };
-
-    
 
     const rotateSub = () => {
         setSubmarines(subs =>
@@ -79,22 +99,30 @@ const Game = ({ gameName, token }: Props) => {
         setSubDragInfos;
     };
 
-    const gameStart = () => {
-        setIsGameStart(true);
-        console.log("start the game");
-        fetch("http://localhost:3000/pusher/newGame", {
+    const handleReady = async () => {
+        const response = await fetch("http://localhost:3000/pusher/initialiseBoard", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ channel: gameName, map: "example1" }),
-        })
-            .then(response => response.json())
-            .then(data => console.log(data));
+            body: JSON.stringify({ gameName, playerId, board:playerGrid }),
+        });
+        const data = await response.json();
+        setReady(true)
+        console.log(data);
     };
 
-    const handleClick = (pos: { x: number; y: number }) => {
-        isGameStart && console.log(pos);
+    const handleClick = async(pos: { x: number; y: number }) => {
+        if (nbPlayerReady < 2 ) return
+        const response = await fetch("http://localhost:3000/pusher/shoot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify( { gameName, playerId, shootPos :pos}),
+        });
+        const data = await response.json()
+        console.log(data)
     };
 
     return (
@@ -105,18 +133,22 @@ const Game = ({ gameName, token }: Props) => {
             onKeyDown={handlePressButton}
             onMouseUp={onMouseUp}
         >
-            Game : {gameName} / token : {token}
+            Game : {gameName}
             <div className={styles.playBoards}>
                 <BoardGame
                     subDragInfos={subDragInfos}
                     moveSub={moveSub}
                     onClick={() => null}
+                    grid={playerGrid}
+                    setGrid={setPlayerGrid}
                 />
 
                 <BoardGame
                     subDragInfos={null}
                     moveSub={() => {}}
                     onClick={handleClick}
+                    grid={opponentGrid}
+                    setGrid={setOpponentGrid}
                 />
             </div>
             {submarines.map((submarine, i) => (
@@ -126,7 +158,12 @@ const Game = ({ gameName, token }: Props) => {
                     handleDragStart={handleDragStart}
                 />
             ))}
-            <button onClick={gameStart}>Start game</button>
+            <button
+                onClick={handleReady}
+                disabled={!hasTwoPlayers || ready}
+            >
+                Prêt
+            </button>
         </div>
     );
 };

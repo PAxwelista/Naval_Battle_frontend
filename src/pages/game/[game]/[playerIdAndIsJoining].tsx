@@ -6,7 +6,7 @@ import { useEffect } from "react";
 export default function GamePage() {
     const router = useRouter();
     const game = router.query.game as string;
-    const token = router.query.token as string;
+    const playerIdAndIsJoining = router.query.playerIdAndIsJoining as string;
     return (
         <>
             <Head>
@@ -15,7 +15,8 @@ export default function GamePage() {
             {game ? (
                 <Game
                     gameName={game}
-                    token={token}
+                    playerId={playerIdAndIsJoining.split(";")[0]}
+                    isJoining={playerIdAndIsJoining.split(";")[1]}
                 />
             ) : (
                 <div>Chargement de la page impossible</div>

@@ -12,8 +12,18 @@ const JoinGame=()=> {
             setChannels(data.channels);
         })();
     }, []);
-    const handleClick = (channel : string) =>{
-        router.push(`game/${channel.substring(9)}/${uid(10)}`);
+    const handleClick = async (channel : string) =>{
+        console.log("channel :",channel)
+        const response = await fetch("http://localhost:3000/pusher/joinGame", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({gameName :channel , playerName:"Axel"}),
+        })
+        const data :  {playerId : string} = await response.json()
+        console.log(data)
+        router.push(`game/${channel}/${data.playerId};true`);
     }
     console.log("channels :", channels);
     const Serveurs = Object.keys(channels).map((serveur: string) => <button key={serveur} onClick={()=>handleClick(serveur)}>{serveur}</button>);

@@ -1,10 +1,8 @@
-import { useState } from "react";
 import styles from "@/styles/PlayBoard.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardGameType, Grid, Pos } from "@/types";
+import { BoardGameType, Pos } from "@/types";
 import {
     changeGrid,
-    createEmptyGrid,
     gridIncludesValuesInPositions,
     replaceValuesOnGrid,
     subDragInfosToPositions,
@@ -13,10 +11,7 @@ import {
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
-const BoardGame = ({ subDragInfos, moveSub, onClick }: BoardGameType) => {
-    const [grid, setGrid] = useState<Grid>(createEmptyGrid("-", 8));
-    // initialise un tableau deux entrée avec des - correspondant au jeu,
-    // un chiffre qui correspond au numéro du tableau pour un vaisseau placé et P pour le passage d'un navire
+const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameType) => {
 
     const canFitInTile = (pos: Pos) => {
         if (subDragInfos) {

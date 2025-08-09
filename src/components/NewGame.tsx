@@ -2,16 +2,23 @@ import { useState } from "react";
 import { useOnChange } from "@/customHooks";
 import { useRouter } from "next/router";
 import styles from "@/styles/NewGame.module.css";
-import uid from "uid2";
 
 const NewGame = () => {
     const router = useRouter();
     const input = useOnChange("");
     const [erreurString, setErreurString] = useState("");
-    const handleValidate = () => {
+    const handleValidate =async () => {
         if (input.value === "") return setErreurString("Inputs non remplis");
         setErreurString("");
-        router.push(`game/${input.value}/${uid(10)}`);
+        const response = await fetch("http://localhost:3000/pusher/newGame", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gameName: input.value ,playerName:"Gérard" }),
+        })
+        const data = await response.json()
+        router.push(`game/${input.value}/${data.playerId};false`);
     };
 
     return (
