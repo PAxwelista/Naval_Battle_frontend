@@ -1,3 +1,4 @@
+import { FireState } from "@/interface";
 import { Pos } from "./pos";
 
 export type BoardTileType = {
@@ -8,4 +9,5 @@ export type BoardTileType = {
     onDragLeave: ()=>void;
     canDragAndDrop: boolean;
     onClick: Function;
+    fireState: FireState
 };

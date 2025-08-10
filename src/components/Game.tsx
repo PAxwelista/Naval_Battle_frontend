@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import { Submarine } from "./Submarine";
 import { BoardGame } from "./BoardGame";
 import { Grid, initialSubmarineType, SubDragInfosType } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
+import { apiUrl } from "@/config";
 
 type Props = {
     gameName: string;
@@ -31,10 +32,35 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
     const [opponentGrid, setOpponentGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [submarines, setSubmarines] = useState<initialSubmarineType[]>(initialSubmarines);
     const [subDragInfos, setSubDragInfos] = useState<SubDragInfosType>(defaultSubDragInfos);
-    const [isGameStart, setIsGameStart] = useState<boolean>(false);
     const [hasTwoPlayers, setHasTwoPlayers] = useState<boolean>(isJoining === "true");
-    const [nbPlayerReady , setNbPlayerReady] = useState<number>(0);
-    const [ready , setReady] = useState<boolean>(false)
+    const [nbPlayerReady, setNbPlayerReady] = useState<number>(0);
+    const [ready, setReady] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
+    const firstRun = useRef(true);
+
+    const isGameStart = nbPlayerReady === 2;
+    useEffect(() => {
+        return () => {
+          if (firstRun.current) {
+            firstRun.current = false;
+            return;
+          }
+          if (isJoining) return
+          handleEndGame()
+        };
+      }, []);
+
+    const handleEndGame = () => {
+        setMessage("La partie est fini");
+        fetch(`${apiUrl}/pusher/endGame`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gameName }),
+        });
+    };
+
     usePusherChannel(
         gameName,
         ["joinGame", "initialiseBoard", "shoot"],
@@ -47,12 +73,20 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
     }
     function handleInitialiseBoard(data: Record<string, string>): void {
         const { playerId } = data;
-        setNbPlayerReady(nbPlayer=>nbPlayer+1)
+        setNbPlayerReady(nbPlayer => nbPlayer + 1);
         console.log(playerId);
     }
     function handleShoot(data: Record<string, string>): void {
-        const { playerId, shootPos, shootInfos } = data;
-        console.log(playerId, shootPos, shootInfos);
+        const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
+        if (data.playerId === playerId) return;
+        if (gameEnd) return handleEndGame();
+        setPlayerGrid(grid =>
+            grid.map((line, i) =>
+                line.map((v, j) =>
+                    i === Number(shootPosY) && j === Number(shootPosX) ? (shootSuccessfull ? "F" : "X") : v
+                )
+            )
+        );
     }
 
     const handlePressButton = (event: React.KeyboardEvent) => {
@@ -100,29 +134,37 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
     };
 
     const handleReady = async () => {
-        const response = await fetch("http://localhost:3000/pusher/initialiseBoard", {
+        const response = await fetch(`${apiUrl}/pusher/initialiseBoard`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ gameName, playerId, board:playerGrid }),
+            body: JSON.stringify({ gameName, playerId, board: playerGrid }),
         });
         const data = await response.json();
-        setReady(true)
+        setReady(true);
         console.log(data);
     };
 
-    const handleClick = async(pos: { x: number; y: number }) => {
-        if (nbPlayerReady < 2 ) return
-        const response = await fetch("http://localhost:3000/pusher/shoot", {
+    const handleClick = async (pos: { x: number; y: number }) => {
+        if (!isGameStart) return;
+        const response = await fetch(`${apiUrl}/pusher/shoot`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify( { gameName, playerId, shootPos :pos}),
+            body: JSON.stringify({ gameName, playerId, shootPos: pos }),
         });
-        const data = await response.json()
-        console.log(data)
+        const data:
+            | { result: true; shootInfos: { shootSuccessfull: boolean; gameEnd: boolean } }
+            | { result: false; error: string } = await response.json();
+        if (!data.result) return setMessage(data.error);
+        if (data.shootInfos.gameEnd) return handleEndGame();
+        setOpponentGrid(grid =>
+            grid.map((line, i) =>
+                line.map((v, j) => (i === pos.y && j === pos.x ? (data.shootInfos.shootSuccessfull ? "F" : "X") : v))
+            )
+        );
     };
 
     return (
@@ -134,6 +176,7 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
             onMouseUp={onMouseUp}
         >
             Game : {gameName}
+            {message && message}
             <div className={styles.playBoards}>
                 <BoardGame
                     subDragInfos={subDragInfos}

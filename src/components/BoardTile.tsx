@@ -1,8 +1,27 @@
+import { FireState } from "@/enum";
 import styles from "@/styles/BoardCase.module.css";
 import { BoardTileType } from "@/types";
 
-const BoardTile = ({ shipPassing, pos, onDragEnter, onDrop, onDragLeave, canDragAndDrop, onClick }: BoardTileType) => {
-    const dragItemHover = { backgroundColor: shipPassing ? "red" : "burlywood" };
+const BoardTile = ({
+    shipPassing,
+    pos,
+    onDragEnter,
+    onDrop,
+    onDragLeave,
+    canDragAndDrop,
+    onClick,
+    fireState,
+}: BoardTileType) => {
+    const style = {
+        backgroundColor:
+            fireState === FireState.missFire
+                ? "orange"
+                : fireState === FireState.successFire
+                ? "green"
+                : shipPassing
+                ? "red"
+                : "burlywood",
+    };
 
     const handleClick = () => {
         onClick(pos);
@@ -12,9 +31,11 @@ const BoardTile = ({ shipPassing, pos, onDragEnter, onDrop, onDragLeave, canDrag
         <div
             className={styles.main}
             onMouseOver={() => canDragAndDrop && onDragEnter(pos)}
-            onMouseLeave={() => {canDragAndDrop && onDragLeave()}}
+            onMouseLeave={() => {
+                canDragAndDrop && onDragLeave();
+            }}
             onMouseUp={event => canDragAndDrop && onDrop(pos, event)}
-            style={dragItemHover}
+            style={style}
             onClick={handleClick}
             onDragOver={e => {
                 e.stopPropagation();

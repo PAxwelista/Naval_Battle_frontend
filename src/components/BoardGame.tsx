@@ -1,18 +1,13 @@
 import styles from "@/styles/PlayBoard.module.css";
 import { BoardTile } from "./BoardTile";
 import { BoardGameType, Pos } from "@/types";
-import {
-    changeGrid,
-    gridIncludesValuesInPositions,
-    replaceValuesOnGrid,
-    subDragInfosToPositions,
-} from "@/utils";
+import { changeGrid, gridIncludesValuesInPositions, replaceValuesOnGrid, subDragInfosToPositions } from "@/utils";
+import { FireState } from "@/enum";
 
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameType) => {
-
     const canFitInTile = (pos: Pos) => {
         if (subDragInfos) {
             const positions = subDragInfosToPositions(
@@ -81,6 +76,13 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
                     <BoardTile
                         key={i.toString() + " " + j.toString()}
                         shipPassing={grid[i][j] === "P"}
+                        fireState={
+                            grid[i][j] === "X"
+                                ? FireState.missFire
+                                : grid[i][j] === "F"
+                                ? FireState.successFire
+                                : FireState.notFire
+                        }
                         pos={{ x: j, y: i }}
                         onDragEnter={onDragEnter}
                         onDrop={onDrop}

@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useOnChange } from "@/customHooks";
 import { useRouter } from "next/router";
 import styles from "@/styles/NewGame.module.css";
+import { apiUrl } from "../config";
 
 const NewGame = () => {
     const router = useRouter();
     const input = useOnChange("");
     const [erreurString, setErreurString] = useState("");
     const handleValidate =async () => {
+
         if (input.value === "") return setErreurString("Inputs non remplis");
         setErreurString("");
-        const response = await fetch("http://localhost:3000/pusher/newGame", {
+        const response = await fetch(`${apiUrl}/pusher/newGame`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

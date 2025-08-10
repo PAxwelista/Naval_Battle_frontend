@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import uid from "uid2"
+import { apiUrl } from "@/config";
 
 const JoinGame=()=> {
     const router = useRouter()
     const [channels, setChannels] = useState({});
     useEffect(() => {
         (async () => {
-            const response = await fetch("http://localhost:3000/pusher/channels");
+            const response = await fetch(`${apiUrl}/pusher/channels`);
             const data = await response.json();
             setChannels(data.channels);
         })();
     }, []);
     const handleClick = async (channel : string) =>{
         console.log("channel :",channel)
-        const response = await fetch("http://localhost:3000/pusher/joinGame", {
+        const response = await fetch(`${apiUrl}/pusher/joinGame`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
