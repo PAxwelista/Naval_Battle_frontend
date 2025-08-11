@@ -2,7 +2,9 @@
     position: absolute;
 }
 .submarine:active {
-    cursor: pointer;
+    cursor: grab;
+    scale:1.1;
+    transition : scale 0.5s ease-out
 }
 .submarineSection {
     border-radius: 100px;

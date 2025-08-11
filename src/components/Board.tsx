@@ -7,7 +7,7 @@ import { Submarine } from "./Submarine";
 
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
-const TILE_SIZE = 50;
+const TILE_SIZE = 40;
 
 export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid, setGrid }: BoardType) => {
     const canFitInTile = (pos: Pos) => {
