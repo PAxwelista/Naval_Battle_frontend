@@ -10,3 +10,9 @@
     display: flex;
     justify-content: space-around;
 }
+.gameStarted{
+    background-color: green;
+}
+.gameNotStarted{
+    background-color: blue;
+}

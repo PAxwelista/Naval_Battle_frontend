@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
+import subStyle from "@/styles/Submarine.module.css"
 import { Board } from "./Board";
 import { GameProps, Grid, SubmarineType, SubDragInfosType } from "@/types";
 import { usePusherChannel } from "@/customHooks";
@@ -18,7 +19,7 @@ const defaultSubDragInfos = {
 export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const initialSubmarines = [
         {
-            dragPos: { x: -50, y: 0 },
+            dragPos: { x: 50, y: -40 },
             tileSize: 41,
             boardPos: undefined,
             subSize: 2,
@@ -143,7 +144,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         );
     };
     const style = {
-        cursor: subDragInfos.index >= 0 ? "grabbing" : undefined,
+        cursor: subDragInfos.index >= 0 && !isGameStart  ? "grabbing" : "default",
     };
 
     return (
@@ -158,7 +159,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             <p>hello</p>
             {message && message}
             <div className={styles.playBoards}>
-                <div>
+                <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted  }>
                     <p>Votre terrain</p>
                     <Board
                         submarines={submarines.map(v => ({ ...v, handleDragStart }))}
