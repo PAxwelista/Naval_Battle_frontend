@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
-import subStyle from "@/styles/Submarine.module.css"
+import subStyle from "@/styles/Submarine.module.css";
 import { Board } from "./Board";
 import { GameProps, Grid, SubmarineType, SubDragInfosType } from "@/types";
 import { usePusherChannel } from "@/customHooks";
@@ -96,10 +96,28 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     };
 
     const rotateSub = () => {
+        const OffetX = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? 1 : -1);
+        const OffetY = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? -1 : 1);
         setSubmarines(subs =>
-            subs.map(sub => (sub.index === subDragInfos.index ? { ...sub, horizontal: !sub.horizontal } : sub))
+            subs.map(sub =>
+                sub.index === subDragInfos.index
+                    ? {
+                          ...sub,
+                          horizontal: !sub.horizontal,
+                          dragPos: {
+                              x: (sub.dragPos?.x || 0) + OffetX,
+                              y: (sub.dragPos?.y || 0) + OffetY,
+                          },
+                      }
+                    : sub
+            )
         );
-        setSubDragInfos(prev => ({ ...prev, horizontal: !prev.horizontal }));
+        setSubDragInfos(prev => ({
+            ...prev,
+            horizontal: !prev.horizontal,
+            shiftX: prev.shiftX - OffetX,
+            shiftY: prev.shiftY - OffetY,
+        }));
     };
 
     function handleDragStart(dragInfos: SubDragInfosType) {
@@ -144,7 +162,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         );
     };
     const style = {
-        cursor: subDragInfos.index >= 0 && !isGameStart  ? "grabbing" : "default",
+        cursor: subDragInfos.index >= 0 && !isGameStart ? "grabbing" : "default",
     };
 
     return (
@@ -159,7 +177,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             <p>hello</p>
             {message && message}
             <div className={styles.playBoards}>
-                <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted  }>
+                <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted}>
                     <p>Votre terrain</p>
                     <Board
                         submarines={submarines.map(v => ({ ...v, handleDragStart }))}
