@@ -19,10 +19,12 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
     const handleOnStartDrag = (event: React.MouseEvent) => {
         setIsDragging(true);
         const target = event.target as HTMLDivElement;
-        const sub = target.parentElement as HTMLDivElement;
+        const sub = target.closest(".submarine") as HTMLDivElement;
+        const squareSection = target.closest(".squareSection") as HTMLDivElement;
         const shiftX = event.pageX - sub.offsetLeft;
         const shiftY = event.pageY - sub.offsetTop;
-        const dragSectionIndex = Number(target.dataset.index);
+        const dragSectionIndex = Number(squareSection.dataset.index);
+
         handleDragStart({
             horizontal,
             dragSectionIndex,
@@ -40,8 +42,8 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
     const flexDirection: "row" | "column" = horizontal ? "row" : "column";
     const pointerEvents: "none" | "auto" = isDragging ? "none" : "auto";
 
-    const left = boardPos ? (boardPos.x + 1) * tileSize : dragPos?.x;
-    const top = boardPos ? (boardPos.y + 1) * tileSize : dragPos?.y;
+    const left = boardPos ? (boardPos.x + 1) * tileSize : dragPos?.x || 0;
+    const top = boardPos ? (boardPos.y + 1) * tileSize : dragPos?.y || 0;
 
     const subStyle = {
         left,
@@ -55,16 +57,19 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
         <div
             onMouseDown={handleOnStartDrag}
             style={subStyle}
-            className={styles.submarine}
+            className={`${styles.submarine} submarine`}
         >
             {Array.from({ length: subSize }, (_, i) => i + 1).map((_, i) => (
                 <div
-                    onMouseDown={() => false}
+                    className="squareSection"
                     key={i}
                     data-index={i}
-                    className={styles.submarineSection}
-                    style={{  height: tileSize, width: tileSize }}
-                ></div>
+                >
+                    <div
+                        className={styles.submarineSection}
+                        style={{ height: tileSize, width: tileSize }}
+                    ></div>
+                </div>
             ))}
         </div>
     );

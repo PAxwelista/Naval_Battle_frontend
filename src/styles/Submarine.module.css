@@ -1,6 +1,7 @@
-.submarine {
+.submarine{
     position: absolute;
 }
+
 .gameNotStarted .submarine {
     cursor: grab;
 }
