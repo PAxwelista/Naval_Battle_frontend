@@ -1,15 +1,59 @@
 import styles from "@/styles/Board.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardType, Pos } from "@/types";
-import { changeGrid, gridIncludesValuesInPositions, replaceValuesOnGrid, subDragInfosToPositions } from "@/utils";
+import { BoardType, Pos, SubDragInfosType, SubmarineType } from "@/types";
+import {
+    changeGrid,
+    gridIncludesValuesInPositions,
+    replaceValuesOnGrid,
+    subDragInfosToPositions,
+    tranformInitSubPosToSubmarines,
+} from "@/utils";
 import { FireState } from "@/enum";
 import { Submarine } from "./Submarine";
+import { useEffect, useState } from "react";
+import { initialSubmarines } from "@/data";
 
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const TILE_SIZE = 40;
 
-export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid, setGrid }: BoardType) => {
+export const Board = ({
+    subDragInfos,
+    onClick,
+    grid,
+    setGrid,
+    setSubDragInfos,
+    rotateSubSwitch,
+    dragPos,
+    isGameStart,
+}: BoardType) => {
+    const [submarines, setSubmarines] = useState<SubmarineType[]|undefined>(dragPos?
+        tranformInitSubPosToSubmarines(initialSubmarines, TILE_SIZE, handleDragStart):undefined
+    );
+
+    useEffect(() => {
+        rotateSub();
+    }, [rotateSubSwitch]);
+
+    useEffect(() => {
+        subDragInfos && dragPos && changeDragPos(subDragInfos.index, dragPos.x, dragPos.y);
+    }, [dragPos]);
+
+    function handleDragStart(dragInfos: SubDragInfosType) {
+        !isGameStart && setSubDragInfos && setSubDragInfos(dragInfos);
+    }
+
+    const changeBoardPos = (SubIndex: number, x: number, y: number) => {
+        setSubmarines(submarines =>
+            submarines?.map((v, i) => (i != SubIndex ? v : { ...v, boardPos: { x, y }, dragPos: undefined }))
+        );
+    };
+    const changeDragPos = (SubIndex: number, x: number, y: number) => {
+        setSubmarines(submarines =>
+            submarines?.map((v, i) => (i != SubIndex ? v : { ...v, dragPos: { x, y }, boardPos: undefined }))
+        );
+    };
+
     const canFitInTile = (pos: Pos) => {
         if (subDragInfos) {
             const positions = subDragInfosToPositions(
@@ -20,6 +64,33 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
             );
             return gridIncludesValuesInPositions(grid, positions, ["-", "P", subDragInfos.index.toString()]);
         }
+    };
+
+    const rotateSub = () => {
+        if (!subDragInfos || !setSubDragInfos) return;
+        const OffetX = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? 1 : -1);
+        const OffetY = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? -1 : 1);
+        setSubmarines(subs =>
+            subs?.map(sub =>
+                sub.index === subDragInfos.index
+                    ? {
+                          ...sub,
+                          horizontal: !sub.horizontal,
+                          dragPos: {
+                              x: (sub.dragPos?.x || 0) + OffetX,
+                              y: (sub.dragPos?.y || 0) + OffetY,
+                          },
+                      }
+                    : sub
+            )
+        );
+
+        setSubDragInfos(prev => ({
+            ...prev,
+            horizontal: !prev.horizontal,
+            shiftX: prev.shiftX - OffetX,
+            shiftY: prev.shiftY - OffetY,
+        }));
     };
 
     const changeBoard = (positions: Pos[], newValue: string) => {
@@ -48,7 +119,7 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
         setGrid(prevGrid => prevGrid.map(line => line.map(boardCase => (boardCase === "P" ? "-" : boardCase))));
     };
 
-    const onDrop = (pos: Pos, event: React.MouseEvent) => {
+    const onDrop = (pos: Pos) => {
         if (subDragInfos && changeBoardPos && canFitInTile(pos)) {
             removeOldSubPos(subDragInfos.index.toString());
 
@@ -70,7 +141,7 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
     };
 
     const handleClick = (pos: Pos) => {
-        onClick(pos);
+        onClick && onClick(pos);
     };
 
     const Submarines = submarines?.map((submarine, i) => (
@@ -120,7 +191,10 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
         <div className={styles.boardGame}>
             {Submarines}
             <div className={styles.firstLine}>
-                <div className={styles.case} style={{ height: TILE_SIZE, width: TILE_SIZE }}></div>
+                <div
+                    className={styles.case}
+                    style={{ height: TILE_SIZE, width: TILE_SIZE }}
+                ></div>
                 {columnTitle.map(v => (
                     <div
                         key={v}

@@ -1,4 +1,4 @@
-import { Grid, Pos } from "@/types";
+import { Grid, initialSubType, Pos, SubmarineHandleDragStartType, SubmarineType } from "@/types";
 
 const createEmptyGrid = (value: string, size: number): Grid => {
     return Array.from({ length: size }, () => Array.from({ length: size }, () => value));
@@ -29,4 +29,26 @@ const subDragInfosToPositions = (horizontal: boolean, pos: Pos, size: number, in
     return positions;
 };
 
-export { createEmptyGrid, changeGrid, replaceValuesOnGrid, gridIncludesValuesInPositions,subDragInfosToPositions };
+const tranformInitSubPosToSubmarines = (
+    initialSubmarines: initialSubType[],
+    tileSize: number,
+    handleDragStart: SubmarineHandleDragStartType
+): SubmarineType[] => {
+    return initialSubmarines.map((v, i) => ({
+        ...v,
+        dragPos: v.pos,
+        tileSize,
+        boardPos: undefined,
+        index:i,
+        handleDragStart,
+    }));
+};
+
+export {
+    createEmptyGrid,
+    changeGrid,
+    replaceValuesOnGrid,
+    gridIncludesValuesInPositions,
+    subDragInfosToPositions,
+    tranformInitSubPosToSubmarines,
+};

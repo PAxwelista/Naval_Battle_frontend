@@ -14,11 +14,17 @@ export type SubmarineHandleDragStartType = {
 };
 
 export type SubmarineType = {
-    boardPos: Pos|undefined;
-    dragPos: Pos|undefined;
-    tileSize:number;
+    boardPos: Pos | undefined;
+    dragPos: Pos | undefined;
+    tileSize: number;
     subSize: number;
     handleDragStart: SubmarineHandleDragStartType;
     index: number;
+    horizontal: boolean;
+};
+
+export type initialSubType = {
+    pos: Pos;
+    subSize: number;
     horizontal: boolean;
 };

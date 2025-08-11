@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import subStyle from "@/styles/Submarine.module.css";
 import { Board } from "./Board";
-import { GameProps, Grid, SubmarineType, SubDragInfosType } from "@/types";
+import { GameProps, Grid, SubmarineType, SubDragInfosType, Pos } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
@@ -17,34 +17,15 @@ const defaultSubDragInfos = {
 };
 
 export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
-    const initialSubmarines = [
-        {
-            dragPos: { x: 50, y: -40 },
-            tileSize: 41,
-            boardPos: undefined,
-            subSize: 2,
-            index: 0,
-            horizontal: false,
-            handleDragStart,
-        },
-        {
-            dragPos: { x: 400, y: 50 },
-            tileSize: 41,
-            boardPos: undefined,
-            subSize: 3,
-            index: 1,
-            horizontal: true,
-            handleDragStart,
-        },
-    ];
     const [playerGrid, setPlayerGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [opponentGrid, setOpponentGrid] = useState<Grid>(createEmptyGrid("-", 8));
-    const [submarines, setSubmarines] = useState<SubmarineType[]>(initialSubmarines);
+    const [rotateSubSwitch, setRotateSubSwitch] = useState<boolean>(false);
     const [subDragInfos, setSubDragInfos] = useState<SubDragInfosType>(defaultSubDragInfos);
     const [hasTwoPlayers, setHasTwoPlayers] = useState<boolean>(isJoining === "true");
     const [nbPlayerReady, setNbPlayerReady] = useState<number>(0);
     const [ready, setReady] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
+    const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
     const firstRun = useRef(true);
 
     const isGameStart = nbPlayerReady === 2;
@@ -91,54 +72,14 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
-            rotateSub();
+            setRotateSubSwitch(prev => !prev);
         }
     };
-
-    const rotateSub = () => {
-        const OffetX = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? 1 : -1);
-        const OffetY = subDragInfos.dragSectionIndex * 50 * (subDragInfos.horizontal ? -1 : 1);
-        setSubmarines(subs =>
-            subs.map(sub =>
-                sub.index === subDragInfos.index
-                    ? {
-                          ...sub,
-                          horizontal: !sub.horizontal,
-                          dragPos: {
-                              x: (sub.dragPos?.x || 0) + OffetX,
-                              y: (sub.dragPos?.y || 0) + OffetY,
-                          },
-                      }
-                    : sub
-            )
-        );
-        setSubDragInfos(prev => ({
-            ...prev,
-            horizontal: !prev.horizontal,
-            shiftX: prev.shiftX - OffetX,
-            shiftY: prev.shiftY - OffetY,
-        }));
-    };
-
-    function handleDragStart(dragInfos: SubDragInfosType) {
-        !isGameStart && setSubDragInfos(dragInfos);
-    }
 
     const onMouseMove = (event: React.MouseEvent) => {
         if (subDragInfos.index >= 0) {
-            changeDragPos(subDragInfos.index, event.pageX - subDragInfos.shiftX, event.pageY - subDragInfos.shiftY);
+            setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
         }
-    };
-
-    const changeBoardPos = (SubIndex: number, x: number, y: number) => {
-        setSubmarines(submarines =>
-            submarines.map((v, i) => (i != SubIndex ? v : { ...v, boardPos: { x, y }, dragPos: undefined }))
-        );
-    };
-    const changeDragPos = (SubIndex: number, x: number, y: number) => {
-        setSubmarines(submarines =>
-            submarines.map((v, i) => (i != SubIndex ? v : { ...v, dragPos: { x, y }, boardPos: undefined }))
-        );
     };
 
     const handleReady = async () => {
@@ -149,7 +90,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         setReady(response.result);
     };
 
-    const handleClick = async (pos: { x: number; y: number }) => {
+    const handleClick = async (pos: { x: number; y: number }):Promise<void> => {
         setMessage("");
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
@@ -180,12 +121,13 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted}>
                     <p>Votre terrain</p>
                     <Board
-                        submarines={submarines.map(v => ({ ...v, handleDragStart }))}
                         subDragInfos={subDragInfos}
-                        changeBoardPos={changeBoardPos}
-                        onClick={() => null}
+                        setSubDragInfos={setSubDragInfos}
                         grid={playerGrid}
                         setGrid={setPlayerGrid}
+                        rotateSubSwitch={rotateSubSwitch}
+                        dragPos={dragPos}
+                        isGameStart= {isGameStart}
                     />
                 </div>
 
