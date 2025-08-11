@@ -19,7 +19,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const initialSubmarines = [
         {
             dragPos: { x: -50, y: 0 },
-            cellSize: 41,
+            tileSize: 41,
             boardPos: undefined,
             subSize: 2,
             index: 0,
@@ -28,7 +28,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         },
         {
             dragPos: { x: 400, y: 50 },
-            cellSize: 41,
+            tileSize: 41,
             boardPos: undefined,
             subSize: 3,
             index: 1,
@@ -65,12 +65,10 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
 
     function handleJoinGame(data: Record<string, string>): void {
         setHasTwoPlayers(true);
-        console.log(data.info);
     }
     function handleInitialiseBoard(data: Record<string, string>): void {
         const { playerId } = data;
         setNbPlayerReady(nbPlayer => nbPlayer + 1);
-        console.log(playerId);
     }
     function handleShoot(data: Record<string, string>): void {
         const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
@@ -160,7 +158,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 <div>
                     <p>Votre terrain</p>
                     <Board
-                        submarines={submarines.map(v => ({ ...v, handleDragStart, cellSize: 40 }))}
+                        submarines={submarines.map(v => ({ ...v, handleDragStart }))}
                         subDragInfos={subDragInfos}
                         changeBoardPos={changeBoardPos}
                         onClick={() => null}

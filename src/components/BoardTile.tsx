@@ -11,8 +11,11 @@ const BoardTile = ({
     canDragAndDrop,
     onClick,
     fireState,
+    tileSize,
 }: BoardTileType) => {
     const style = {
+        width: tileSize,
+        height: tileSize,
         backgroundColor:
             fireState === FireState.missFire
                 ? "orange"

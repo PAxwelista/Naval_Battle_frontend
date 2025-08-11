@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "@/styles/Submarine.module.css";
 import { SubmarineType } from "@/types";
 
-const Submarine = ({ boardPos, dragPos, cellSize, subSize, handleDragStart, index, horizontal }: SubmarineType) => {
+const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, index, horizontal }: SubmarineType) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     useEffect(() => {
@@ -23,7 +23,6 @@ const Submarine = ({ boardPos, dragPos, cellSize, subSize, handleDragStart, inde
         const shiftX = event.pageX - sub.offsetLeft;
         const shiftY = event.pageY - sub.offsetTop;
         const dragSectionIndex = Number(target.dataset.index);
-        console.log( dragSectionIndex)
         handleDragStart({
             horizontal,
             dragSectionIndex,
@@ -41,8 +40,8 @@ const Submarine = ({ boardPos, dragPos, cellSize, subSize, handleDragStart, inde
     const flexDirection: "row" | "column" = horizontal ? "row" : "column";
     const pointerEvents: "none" | "auto" = isDragging ? "none" : "auto";
 
-    const left = boardPos ? boardPos.x * 41.9+ 41.9 : dragPos?.x;
-    const top = boardPos ? boardPos.y * 41.9+ 41.9 : dragPos?.y;
+    const left = boardPos ? (boardPos.x + 1) * tileSize : dragPos?.x;
+    const top = boardPos ? (boardPos.y + 1) * tileSize : dragPos?.y;
 
     const subStyle = {
         left,
@@ -64,7 +63,7 @@ const Submarine = ({ boardPos, dragPos, cellSize, subSize, handleDragStart, inde
                     key={i}
                     data-index={i}
                     className={styles.submarineSection}
-                    // style={{ pointerEvents: "none" }} // permet de ne sélectionner que le parent\
+                    style={{  height: tileSize, width: tileSize }}
                 ></div>
             ))}
         </div>

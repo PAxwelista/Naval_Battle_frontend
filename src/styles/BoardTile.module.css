@@ -2,12 +2,7 @@
     height: 40px;
     width: 40px;
     border: solid black 1px;
+    box-sizing: border-box;
     text-align: center;
     line-height: 40px;
-}
-.submarine{
-    border-radius: 100px;
-    background-color: red;
-    height: 40px;
-    width: 40px;
 }

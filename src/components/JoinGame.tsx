@@ -7,7 +7,6 @@ const JoinGame = () => {
     const router = useRouter();
     const [channels, setChannels] = useState<Channels>({});
     const [message, setMessage] = useState<string>("");
-console.log(channels)
     useEffect(() => {
         (async () => {
             const response = await gameApiServices.getChannels();

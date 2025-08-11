@@ -16,7 +16,7 @@ export type SubmarineHandleDragStartType = {
 export type SubmarineType = {
     boardPos: Pos|undefined;
     dragPos: Pos|undefined;
-    cellSize:number;
+    tileSize:number;
     subSize: number;
     handleDragStart: SubmarineHandleDragStartType;
     index: number;

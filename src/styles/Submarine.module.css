@@ -1,13 +1,10 @@
-.submarine{
-    position:absolute;
+.submarine {
+    position: absolute;
 }
-.submarine:active{
+.submarine:active {
     cursor: pointer;
 }
-.submarineSection{
+.submarineSection {
     border-radius: 100px;
-    height: 40px;
-    width: 40px;
     background-color: red;
-    margin: 2px;
 }

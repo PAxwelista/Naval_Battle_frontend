@@ -7,10 +7,10 @@ import { Submarine } from "./Submarine";
 
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const TILE_SIZE = 50;
 
 export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid, setGrid }: BoardType) => {
     const canFitInTile = (pos: Pos) => {
-        
         if (subDragInfos) {
             const positions = subDragInfosToPositions(
                 subDragInfos.horizontal,
@@ -77,6 +77,7 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
         <Submarine
             key={i}
             {...submarine}
+            tileSize={TILE_SIZE}
         />
     ));
 
@@ -86,7 +87,12 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
                 key={firstLetter}
                 className={styles.othersLines}
             >
-                <div className={styles.case}>{firstLetter}</div>{" "}
+                <div
+                    className={styles.case}
+                    style={{ height: TILE_SIZE, width: TILE_SIZE }}
+                >
+                    {firstLetter}
+                </div>{" "}
                 {columnTitle.map((_, j) => (
                     <BoardTile
                         key={i.toString() + " " + j.toString()}
@@ -104,6 +110,7 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
                         onDragLeave={onDragLeave}
                         canDragAndDrop={!!(subDragInfos && subDragInfos.index >= 0)}
                         onClick={handleClick}
+                        tileSize={TILE_SIZE}
                     />
                 ))}
             </div>
@@ -113,11 +120,12 @@ export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid,
         <div className={styles.boardGame}>
             {Submarines}
             <div className={styles.firstLine}>
-                <div className={styles.case}></div>
+                <div className={styles.case} style={{ height: TILE_SIZE, width: TILE_SIZE }}></div>
                 {columnTitle.map(v => (
                     <div
                         key={v}
                         className={styles.case}
+                        style={{ height: TILE_SIZE, width: TILE_SIZE }}
                     >
                         {v}
                     </div>
