@@ -122,7 +122,6 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         );
     };
 
-   
     const handleReady = async () => {
         const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
         if (!response.result) {
@@ -143,6 +142,9 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             )
         );
     };
+    const style = {
+        cursor: subDragInfos.index >= 0 ? "grabbing" : undefined,
+    };
 
     return (
         <div
@@ -150,6 +152,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             className={styles.main}
             onMouseMove={onMouseMove}
             onKeyDown={handlePressButton}
+            style={style}
         >
             <h1>Partie : {gameName}</h1>
             <p>hello</p>
