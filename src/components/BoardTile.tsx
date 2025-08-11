@@ -1,5 +1,5 @@
 import { FireState } from "@/enum";
-import styles from "@/styles/BoardCase.module.css";
+import styles from "@/styles/BoardTile.module.css";
 import { BoardTileType } from "@/types";
 
 const BoardTile = ({

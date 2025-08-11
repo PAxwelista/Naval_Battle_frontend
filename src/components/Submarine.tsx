@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "@/styles/Submarine.module.css";
 import { SubmarineType } from "@/types";
 
-
-
-const Submarine = ({ posX, posY, size, handleDragStart, index, horizontal }: SubmarineType) => {
+const Submarine = ({ boardPos, dragPos, cellSize, subSize, handleDragStart, index, horizontal }: SubmarineType) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     useEffect(() => {
@@ -20,18 +18,16 @@ const Submarine = ({ posX, posY, size, handleDragStart, index, horizontal }: Sub
 
     const handleOnStartDrag = (event: React.MouseEvent) => {
         setIsDragging(true);
-        const target = event.target as HTMLTextAreaElement;
-        const shiftX = event.pageX - target.offsetLeft;
-        const shiftY = event.clientY - target.offsetTop;
-        const dragSectionIndex = Math.floor(
-            horizontal ? shiftX / (target.offsetWidth / size) : shiftY / (target.offsetHeight / size)
-        );
-        //On teste d'abord si il a un element parent (le cas ou on clique en dehors des ronds rouge si c'est null)
-        //on prend l'élément direct
+        const target = event.target as HTMLDivElement;
+        const sub = target.parentElement as HTMLDivElement;
+        const shiftX = event.pageX - sub.offsetLeft;
+        const shiftY = event.pageY - sub.offsetTop;
+        const dragSectionIndex = Number(target.dataset.index);
+        console.log( dragSectionIndex)
         handleDragStart({
             horizontal,
             dragSectionIndex,
-            size,
+            subSize,
             index,
             shiftX,
             shiftY,
@@ -39,18 +35,21 @@ const Submarine = ({ posX, posY, size, handleDragStart, index, horizontal }: Sub
     };
     const onEndDrag = () => {
         setIsDragging(false);
-        handleDragStart({ horizontal, dragSectionIndex: 2, size, index: -1, shiftX: -1, shiftY: -1 });
+        handleDragStart({ horizontal, dragSectionIndex: 2, subSize, index: -1, shiftX: -1, shiftY: -1 });
     };
 
-    const direction: "row" | "column" = horizontal ? "row" : "column";
-    const events: "none" | "auto" = isDragging ? "none" : "auto";
+    const flexDirection: "row" | "column" = horizontal ? "row" : "column";
+    const pointerEvents: "none" | "auto" = isDragging ? "none" : "auto";
+
+    const left = boardPos ? boardPos.x * 41.9+ 41.9 : dragPos?.x;
+    const top = boardPos ? boardPos.y * 41.9+ 41.9 : dragPos?.y;
 
     const subStyle = {
-        left: posX,
-        top: posY,
+        left,
+        top,
         display: "flex",
-        flexDirection: direction,
-        pointerEvents: events,
+        flexDirection,
+        pointerEvents,
     };
 
     return (
@@ -59,12 +58,13 @@ const Submarine = ({ posX, posY, size, handleDragStart, index, horizontal }: Sub
             style={subStyle}
             className={styles.submarine}
         >
-            {Array.from({ length: size }, (_, i) => i + 1).map((_, i) => (
+            {Array.from({ length: subSize }, (_, i) => i + 1).map((_, i) => (
                 <div
                     onMouseDown={() => false}
                     key={i}
+                    data-index={i}
                     className={styles.submarineSection}
-                    style={{ pointerEvents: "none" }} // permet de ne sélectionner que le parent
+                    // style={{ pointerEvents: "none" }} // permet de ne sélectionner que le parent\
                 ></div>
             ))}
         </div>

@@ -1,6 +1,6 @@
 export * from "./submarine"
 export * from "./boardTile"
-export * from "./boardGame"
+export * from "./board"
 export * from "./pos"
 export * from "./grid"
 export * from "./apiResponse"

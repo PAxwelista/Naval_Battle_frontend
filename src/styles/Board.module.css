@@ -1,7 +1,6 @@
-.main {
-    background-color: blue;
-}
+
 .boardGame {
+    position:relative;
     background-color: coral;
 }
 .firstLine {

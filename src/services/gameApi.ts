@@ -11,7 +11,6 @@ const endGame = async (gameName: string): Promise<ResultOrError> => {
     });
     
     const data = (await response.json()) as ResultOrError;
-    console.log(data)
     return data;
 };
 

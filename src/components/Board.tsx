@@ -1,19 +1,21 @@
-import styles from "@/styles/PlayBoard.module.css";
+import styles from "@/styles/Board.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardGameType, Pos } from "@/types";
+import { BoardType, Pos } from "@/types";
 import { changeGrid, gridIncludesValuesInPositions, replaceValuesOnGrid, subDragInfosToPositions } from "@/utils";
 import { FireState } from "@/enum";
+import { Submarine } from "./Submarine";
 
 const columnTitle = [1, 2, 3, 4, 5, 6, 7, 8];
 const lineTitle = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
-const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameType) => {
+export const Board = ({ submarines, subDragInfos, changeBoardPos, onClick, grid, setGrid }: BoardType) => {
     const canFitInTile = (pos: Pos) => {
+        
         if (subDragInfos) {
             const positions = subDragInfosToPositions(
                 subDragInfos.horizontal,
                 pos,
-                subDragInfos.size,
+                subDragInfos.subSize,
                 subDragInfos.dragSectionIndex
             );
             return gridIncludesValuesInPositions(grid, positions, ["-", "P", subDragInfos.index.toString()]);
@@ -32,7 +34,12 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
         canFitInTile(pos) &&
             subDragInfos &&
             changeBoard(
-                subDragInfosToPositions(subDragInfos.horizontal, pos, subDragInfos.size, subDragInfos.dragSectionIndex),
+                subDragInfosToPositions(
+                    subDragInfos.horizontal,
+                    pos,
+                    subDragInfos.subSize,
+                    subDragInfos.dragSectionIndex
+                ),
                 "P"
             );
     };
@@ -42,21 +49,22 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
     };
 
     const onDrop = (pos: Pos, event: React.MouseEvent) => {
-        if (subDragInfos && moveSub && canFitInTile(pos)) {
-            const target = event.target as HTMLTextAreaElement;
+        if (subDragInfos && changeBoardPos && canFitInTile(pos)) {
             removeOldSubPos(subDragInfos.index.toString());
+
             changeBoard(
-                subDragInfosToPositions(subDragInfos.horizontal, pos, subDragInfos.size, subDragInfos.dragSectionIndex),
+                subDragInfosToPositions(
+                    subDragInfos.horizontal,
+                    pos,
+                    subDragInfos.subSize,
+                    subDragInfos.dragSectionIndex
+                ),
                 subDragInfos.index.toString()
             );
-            moveSub(
+            changeBoardPos(
                 subDragInfos.index,
-                subDragInfos.horizontal
-                    ? target.offsetLeft - target.offsetWidth * subDragInfos.dragSectionIndex
-                    : target.offsetLeft,
-                subDragInfos.horizontal
-                    ? target.offsetTop
-                    : target.offsetTop - target.offsetHeight * subDragInfos.dragSectionIndex
+                subDragInfos.horizontal ? pos.x - subDragInfos.dragSectionIndex : pos.x,
+                subDragInfos.horizontal ? pos.y : pos.y - subDragInfos.dragSectionIndex
             );
         }
     };
@@ -64,6 +72,13 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
     const handleClick = (pos: Pos) => {
         onClick(pos);
     };
+
+    const Submarines = submarines?.map((submarine, i) => (
+        <Submarine
+            key={i}
+            {...submarine}
+        />
+    ));
 
     const line = (firstLetter: string, i: number) => {
         return (
@@ -96,6 +111,7 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
     };
     return (
         <div className={styles.boardGame}>
+            {Submarines}
             <div className={styles.firstLine}>
                 <div className={styles.case}></div>
                 {columnTitle.map(v => (
@@ -111,5 +127,3 @@ const BoardGame = ({ subDragInfos, moveSub, onClick, grid, setGrid }: BoardGameT
         </div>
     );
 };
-
-export { BoardGame };

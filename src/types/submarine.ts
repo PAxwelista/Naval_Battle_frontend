@@ -1,23 +1,24 @@
+import { Pos } from "./pos";
+
 export type SubDragInfosType = {
     horizontal: boolean;
     dragSectionIndex: number;
-    size: number;
+    subSize: number;
     index: number;
     shiftX: number;
     shiftY: number;
 };
 
 export type SubmarineHandleDragStartType = {
-    ({ horizontal, dragSectionIndex, size, index, shiftX, shiftY }: SubDragInfosType): void;
+    ({ horizontal, dragSectionIndex, subSize, index, shiftX, shiftY }: SubDragInfosType): void;
 };
 
 export type SubmarineType = {
-    posX: number;
-    posY: number;
-    size: number;
+    boardPos: Pos|undefined;
+    dragPos: Pos|undefined;
+    cellSize:number;
+    subSize: number;
     handleDragStart: SubmarineHandleDragStartType;
     index: number;
     horizontal: boolean;
 };
-
-export type initialSubmarineType = { posX: number; posY: number; size: number; index: number; horizontal: boolean };

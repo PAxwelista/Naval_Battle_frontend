@@ -1,5 +1,5 @@
 .submarine{
-    position: absolute;
+    position:absolute;
 }
 .submarine:active{
     cursor: pointer;
