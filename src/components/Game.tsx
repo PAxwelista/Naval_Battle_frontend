@@ -2,16 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import { Submarine } from "./Submarine";
 import { BoardGame } from "./BoardGame";
-import { Grid, initialSubmarineType, SubDragInfosType } from "@/types";
+import { GameProps, Grid, initialSubmarineType, SubDragInfosType } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
-import { apiUrl } from "@/config";
-
-type Props = {
-    gameName: string;
-    isJoining: string;
-    playerId: string;
-};
+import { gameApiServices } from "@/services";
 
 const initialSubmarines = [
     { posX: 30, posY: 20, size: 2, index: 0, horizontal: false },
@@ -27,7 +21,7 @@ const defaultSubDragInfos = {
     shiftY: -1,
 };
 
-const Game = ({ gameName, isJoining, playerId }: Props) => {
+export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [playerGrid, setPlayerGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [opponentGrid, setOpponentGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [submarines, setSubmarines] = useState<initialSubmarineType[]>(initialSubmarines);
@@ -41,26 +35,14 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
     const isGameStart = nbPlayerReady === 2;
     useEffect(() => {
         return () => {
-          if (firstRun.current) {
-            firstRun.current = false;
-            return;
-          }
-          if (isJoining) return
-          handleEndGame()
+            if (firstRun.current) {
+                firstRun.current = false;
+                return;
+            }
+            if (isJoining) return;
+            handleEndGame();
         };
-      }, []);
-
-    const handleEndGame = () => {
-        setMessage("La partie est fini");
-        fetch(`${apiUrl}/pusher/endGame`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ gameName }),
-        });
-    };
-
+    }, []);
     usePusherChannel(
         gameName,
         ["joinGame", "initialiseBoard", "shoot"],
@@ -88,6 +70,11 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
             )
         );
     }
+
+    const handleEndGame = () => {
+        setMessage("La partie est fini");
+        gameApiServices.endGame(gameName);
+    };
 
     const handlePressButton = (event: React.KeyboardEvent) => {
         if (event.key === "r" && subDragInfos.index >= 0) {
@@ -134,35 +121,22 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
     };
 
     const handleReady = async () => {
-        const response = await fetch(`${apiUrl}/pusher/initialiseBoard`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ gameName, playerId, board: playerGrid }),
-        });
-        const data = await response.json();
-        setReady(true);
-        console.log(data);
+        const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
+        if (!response.result) {
+            setMessage(response.error);
+        }
+        setReady(response.result);
     };
 
     const handleClick = async (pos: { x: number; y: number }) => {
+        setMessage("");
         if (!isGameStart) return;
-        const response = await fetch(`${apiUrl}/pusher/shoot`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ gameName, playerId, shootPos: pos }),
-        });
-        const data:
-            | { result: true; shootInfos: { shootSuccessfull: boolean; gameEnd: boolean } }
-            | { result: false; error: string } = await response.json();
-        if (!data.result) return setMessage(data.error);
-        if (data.shootInfos.gameEnd) return handleEndGame();
+        const response = await gameApiServices.shoot(gameName,playerId,pos)
+        if (!response.result) return setMessage(response.error);
+        if (response.data.gameEnd) return handleEndGame();
         setOpponentGrid(grid =>
             grid.map((line, i) =>
-                line.map((v, j) => (i === pos.y && j === pos.x ? (data.shootInfos.shootSuccessfull ? "F" : "X") : v))
+                line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
             )
         );
     };
@@ -175,24 +149,25 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
             onKeyDown={handlePressButton}
             onMouseUp={onMouseUp}
         >
-            Game : {gameName}
+            <h1>Partie : {gameName}</h1>
+            <p>hello</p>
             {message && message}
             <div className={styles.playBoards}>
-                <BoardGame
+                <div><p>Votre terrain</p><BoardGame
                     subDragInfos={subDragInfos}
                     moveSub={moveSub}
                     onClick={() => null}
                     grid={playerGrid}
                     setGrid={setPlayerGrid}
-                />
+                /></div>
 
-                <BoardGame
+                <div><p>Le terrain de l'adversaire</p><BoardGame
                     subDragInfos={null}
                     moveSub={() => {}}
                     onClick={handleClick}
                     grid={opponentGrid}
                     setGrid={setOpponentGrid}
-                />
+                /></div>
             </div>
             {submarines.map((submarine, i) => (
                 <Submarine
@@ -210,5 +185,3 @@ const Game = ({ gameName, isJoining, playerId }: Props) => {
         </div>
     );
 };
-
-export { Game };

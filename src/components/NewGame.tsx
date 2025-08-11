@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useOnChange } from "@/customHooks";
 import { useRouter } from "next/router";
 import styles from "@/styles/NewGame.module.css";
-import { apiUrl } from "../config";
+import { gameApiServices } from "@/services";
 
 const NewGame = () => {
     const router = useRouter();
@@ -12,15 +12,9 @@ const NewGame = () => {
 
         if (input.value === "") return setErreurString("Inputs non remplis");
         setErreurString("");
-        const response = await fetch(`${apiUrl}/pusher/newGame`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ gameName: input.value ,playerName:"Gérard" }),
-        })
-        const data = await response.json()
-        router.push(`game/${input.value}/${data.playerId};false`);
+        const response = await gameApiServices.newGame(input.value,"Gérard")
+        if (!response.result) return setErreurString(response.error);
+        router.push(`game/${input.value}/${response.data.playerId};false`);
     };
 
     return (

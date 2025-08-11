@@ -72,9 +72,3 @@ const Submarine = ({ posX, posY, size, handleDragStart, index, horizontal }: Sub
 };
 
 export { Submarine };
-
-// const getSubInfos = (subWidth: number, subHeigth: number, posClickX: number, posClickY: number) => {
-//     const horizontal = subWidth > subHeigth;
-//     const pos = Math.floor(horizontal ? posClickX / (subWidth / size) : posClickY / (subHeigth / size));
-//     return { horizontal, pos, size, index };
-// };

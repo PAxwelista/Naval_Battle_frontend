@@ -1,7 +1,12 @@
 .main {
     background-color: blanchedalmond;
-}
-.playBoards{
     display: flex;
-    justify-content:space-around;
+    flex: 1;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+.playBoards {
+    display: flex;
+    justify-content: space-around;
 }

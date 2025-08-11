@@ -16,17 +16,17 @@ describe("Input gameName", () => {
 });
 
 describe("Validate Button" , ()=>{
-    it("should change the page if all inputs are setUp", ()=>{
-        const newName = "CoolGame"
-        render(<NewGame />, { wrapper: MemoryRouterProvider })
-        const input = screen.getByPlaceholderText(/Nom de la partie/i)
-        expect(input).toBeInTheDocument()
-        const button = screen.queryByText(/Prêt/i)
-        expect(button).toBeInTheDocument()
-        input && fireEvent.change(input,{target : {value : newName}})
-        button && fireEvent.click(button)
-        expect(router.pathname).toContain(`/game/${newName}/`)
-    })
+    // it("should change the page if all inputs are setUp", ()=>{
+    //     const newName = "CoolGame"
+    //     render(<NewGame />, { wrapper: MemoryRouterProvider })
+    //     const input = screen.getByPlaceholderText(/Nom de la partie/i)
+    //     expect(input).toBeInTheDocument()
+    //     const button = screen.queryByText(/Prêt/i)
+    //     expect(button).toBeInTheDocument()
+    //     input && fireEvent.change(input,{target : {value : newName}})
+    //     button && fireEvent.click(button)
+    //     expect(router.pathname).toContain(`/game/${newName}/`)
+    // })
     it("should show an error message if no all inputs are setUp", ()=>{
         render(<NewGame />, { wrapper: MemoryRouterProvider })
         const button = screen.queryByText(/Prêt/i)

@@ -1,4 +1,4 @@
-import { FireState } from "@/interface";
+import { FireState } from "@/enum";
 import { Pos } from "./pos";
 
 export type BoardTileType = {
