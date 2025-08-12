@@ -46,16 +46,25 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     );
 
     function handleJoinGame(data: Record<string, string>): void {
+        const { playerId: bindPlayerId } = data;
+        if (bindPlayerId === playerId) return;
+        setMessage("Le deuxième joueur vient de rejoindre la partie");
         setHasTwoPlayers(true);
     }
     function handleInitialiseBoard(data: Record<string, string>): void {
-        const { playerId } = data;
+        const { playerId: bindPlayerId } = data;
         setNbPlayerReady(nbPlayer => nbPlayer + 1);
+        if (nbPlayerReady >= 1) {
+            return setMessage("La partie peux commencer");
+        }
+        if (bindPlayerId === playerId) return;
+        setMessage("Le deuxième joueur vous attend");
     }
     function handleShoot(data: Record<string, string>): void {
         const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
         if (data.playerId === playerId) return;
-        if (gameEnd) return handleEndGame();
+
+        setMessage(`Le deuxième joueur vous à ${shootSuccessfull ? "touché" : "raté"}`);
         setPlayerGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) =>
@@ -63,10 +72,13 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 )
             )
         );
+        if (gameEnd) {
+            setMessage("La partie est fini, vous avez perdu");
+            return handleEndGame();
+        }
     }
 
     const handleEndGame = () => {
-        setMessage("La partie est fini");
         gameApiServices.endGame(gameName);
     };
 
@@ -87,20 +99,26 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         if (!response.result) {
             setMessage(response.error);
         }
+        if (nbPlayerReady < 1) setMessage("En attente de l'autre joueur");
         setReady(response.result);
     };
 
-    const handleClick = async (pos: { x: number; y: number }):Promise<void> => {
+    const handleClick = async (pos: { x: number; y: number }): Promise<void> => {
         setMessage("");
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
         if (!response.result) return setMessage(response.error);
-        if (response.data.gameEnd) return handleEndGame();
+
+        setMessage(`Vous avez ${response.data.shootSuccessfull ? "touché" : "raté"}`);
         setOpponentGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
             )
         );
+        if (response.data.gameEnd) {
+            setMessage("La partie est fini, vous avez gagné");
+            return handleEndGame();
+        }
     };
     const style = {
         cursor: subDragInfos.index >= 0 && !isGameStart ? "grabbing" : "default",
@@ -114,12 +132,12 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             onKeyDown={handlePressButton}
             style={style}
         >
-            <h1>Partie : {gameName}</h1>
-            <p>hello</p>
-            {message && message}
+            <h1 className={styles.text}>Partie : {gameName}</h1>
+
+            <p className={`${styles.message} ${styles.text}`}>{message && message}</p>
             <div className={styles.playBoards}>
                 <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted}>
-                    <p>Votre terrain</p>
+                    <p className={styles.text}>Votre terrain</p>
                     <Board
                         subDragInfos={subDragInfos}
                         setSubDragInfos={setSubDragInfos}
@@ -127,12 +145,12 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                         setGrid={setPlayerGrid}
                         rotateSubSwitch={rotateSubSwitch}
                         dragPos={dragPos}
-                        isGameStart= {isGameStart}
+                        isGameStart={isGameStart}
                     />
                 </div>
 
                 <div>
-                    <p>Le terrain de l'adversaire</p>
+                    <p className={styles.text}>Le terrain de l'adversaire</p>
                     <Board
                         subDragInfos={null}
                         onClick={handleClick}
