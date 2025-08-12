@@ -5,3 +5,4 @@ export * from "./JoinGame";
 export * from "./NewGame";
 export * from "./Board";
 export * from "./Submarine";
+export * from "./GameDisplay"

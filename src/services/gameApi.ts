@@ -1,5 +1,5 @@
 import { apiUrl } from "@/config";
-import { ResultOrError, Grid, Pos, ShootInfos, PlayerId, Channels } from "@/types";
+import { ResultOrError, Grid, Pos, ShootInfos, PlayerId, Game } from "@/types";
 
 const endGame = async (gameName: string): Promise<ResultOrError> => {
     const response = await fetch(`${apiUrl}/pusher/endGame`, {
@@ -38,9 +38,9 @@ const shoot = async (gameName: string, playerId: string, shootPos: Pos): Promise
     return data;
 };
 
-const getChannels = async (): Promise<ResultOrError<Channels>> => {
+const getChannels = async (): Promise<ResultOrError<Game[]>> => {
     const response = await fetch(`${apiUrl}/pusher/channels`);
-    const data = (await response.json()) as ResultOrError<Channels>;
+    const data = (await response.json()) as ResultOrError<Game[]>;
     return data;
 };
 

@@ -1,0 +1,22 @@
+.main {
+    background-color:aliceblue;
+    display: flex;
+    flex: 1;
+    height: 80px;
+    align-items: center;
+    border: 2px outset #c0c0c0;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    justify-content:space-between;
+    width: 100%;
+    padding:0px 20px
+}
+.main:active{
+    border: none
+}
+.main:hover{
+    background-color: rgb(213, 232, 238);
+}
+.gameInfos{
+    font-size: large;
+}

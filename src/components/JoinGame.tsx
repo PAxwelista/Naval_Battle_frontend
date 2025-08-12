@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { gameApiServices } from "@/services";
-import { Channels } from "@/types";
+import { Game } from "@/types";
+import { GameDisplay } from "./GameDisplay";
+import styles from "../styles/JoinGame.module.css";
 
 const JoinGame = () => {
     const router = useRouter();
-    const [channels, setChannels] = useState<Channels>({});
+    const [games, setGames] = useState<Game[]>([]);
     const [message, setMessage] = useState<string>("");
     useEffect(() => {
         (async () => {
             const response = await gameApiServices.getChannels();
             if (!response.result) return setMessage(`Erreur : ${response.error}`);
-            setChannels(response.data);
+            setGames(response.data);
         })();
     }, []);
     const handleClick = async (channel: string) => {
@@ -21,20 +23,25 @@ const JoinGame = () => {
         router.push(`game/${channel}/${response.data.playerId};true`);
     };
 
-    const Serveurs = Object.keys(channels).map((serveur: string) => (
-        <button
-            key={serveur}
-            onClick={() => handleClick(serveur)}
-        >
-            {serveur}
-        </button>
+    const Servers = games.map(game => (
+        <GameDisplay
+            key={game.gameName}
+            gameName={game.gameName}
+            host={game.firstPlayer.name}
+            onClick={() => handleClick(game.gameName)}
+        />
     ));
 
     return (
-        <div>
-            {message}
-            <div>{Serveurs}</div>
-        </div>
+        <div className={styles.main}>
+        <div className={styles.page}>
+            <div className={styles.header}>
+                <h1>Liste des parties en cours</h1>
+                <p>{message}</p>
+            </div>
+
+            <div className={styles.body}>{Servers}</div>
+        </div></div>
     );
 };
 

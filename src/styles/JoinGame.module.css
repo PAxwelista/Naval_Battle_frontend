@@ -1,0 +1,18 @@
+.main {
+    height: 100vh;
+    display: flex;
+}
+.page{
+    padding:30px;
+    display: flex;
+    flex:1; 
+    flex-direction: column;
+    text-align: center;
+}
+.header{
+    flex:1
+}
+.body{
+    flex:10;
+    
+}
