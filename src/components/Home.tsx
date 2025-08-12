@@ -1,6 +1,4 @@
 import styles from "@/styles/Home.module.css";
-import btnStyle from "@/styles/button.module.css";
-import Link from "next/link";
 import { Button } from "./Button";
 
 const Home = () => {

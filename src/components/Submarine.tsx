@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "@/styles/Submarine.module.css";
 import { SubmarineType } from "@/types";
+import Image from "next/image";
 
 const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, index, horizontal }: SubmarineType) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -52,6 +53,12 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
         flexDirection,
         pointerEvents,
     };
+    const imageStyle = {
+        position: "absolute" as const,
+        pointerEvents: "none" as const,
+        transformOrigin: `${tileSize/2}px center`,
+        rotate: !horizontal ? "90deg" :"none",
+    };
 
     return (
         <div
@@ -64,6 +71,7 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
                     className="squareSection"
                     key={i}
                     data-index={i}
+                    style={{ backgroundImage: "/public/images/boat2x1.png" }}
                 >
                     <div
                         className={styles.submarineSection}
@@ -71,6 +79,13 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
                     ></div>
                 </div>
             ))}
+            <Image
+                style={imageStyle}
+                src={require(`/public/images/boat${subSize}x1.png`)}
+                width={tileSize * subSize}
+                height={tileSize}
+                alt={"Boat"}
+            />
         </div>
     );
 };

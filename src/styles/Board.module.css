@@ -1,7 +1,6 @@
 
 .boardGame {
     position:relative;
-    background-color: coral;
 }
 .firstLine {
     display: flex;
@@ -11,7 +10,7 @@
     display: flex;
 }
 .case {
-    background-color: burlywood;
+    background-color: rgb(181, 179, 179);
     height: 40px;
     width: 40px;
     box-sizing: border-box;

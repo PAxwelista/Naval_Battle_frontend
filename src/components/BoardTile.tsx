@@ -16,15 +16,15 @@ const BoardTile = ({
     const style = {
         width: tileSize,
         height: tileSize,
-        boxShadow:shipPassing?"#C2A47A 3px 3px 6px 0px inset" :undefined,
-        backgroundColor:
+        boxShadow:shipPassing?"grey 3px 3px 6px 0px inset" :undefined,
+        backgroundColor: 
             fireState === FireState.missFire
                 ? "orange"
                 : fireState === FireState.successFire
                 ? "green"
                 : shipPassing
-                ? "#F2D6B3"
-                : "burlywood",
+                ? "lightGrey"
+                : "rgb(181, 179, 179)",
     };
     //box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
     const handleClick = () => {
