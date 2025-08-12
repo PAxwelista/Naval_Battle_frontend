@@ -29,7 +29,7 @@ describe("Validate Button" , ()=>{
     // })
     it("should show an error message if no all inputs are setUp", ()=>{
         render(<NewGame />, { wrapper: MemoryRouterProvider })
-        const button = screen.queryByText(/Prêt/i)
+        const button = screen.queryByText(/Créer partie/i)
         expect(button).toBeInTheDocument()
         button && fireEvent.click(button)
         expect(screen.getByText("Inputs non remplis")).toBeInTheDocument()

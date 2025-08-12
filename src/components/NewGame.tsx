@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useOnChange } from "@/customHooks";
 import { useRouter } from "next/router";
 import styles from "@/styles/NewGame.module.css";
-import btnStyle from "@/styles/button.module.css";
 import { gameApiServices } from "@/services";
 import { Button } from "./Button";
 import { Input } from "./Input";
+import { isAlphanumeric } from "@/utils/string";
 
 const NewGame = () => {
     const router = useRouter();
@@ -14,9 +14,10 @@ const NewGame = () => {
     const [erreurString, setErreurString] = useState<string>("");
 
     const handleValidate = async () => {
-        setErreurString("")
-        if (gameNameInput.value === "" || userNameInput.value === "") return setErreurString("Inputs non remplis");
         setErreurString("");
+        if (gameNameInput.value === "" || userNameInput.value === "") return setErreurString("Inputs non remplis");
+        if (!isAlphanumeric(gameNameInput.value))
+            return setErreurString("Votre nom de partie n'est pas valide. Lettre et chiffre uniquement");
         const response = await gameApiServices.newGame(gameNameInput.value, userNameInput.value);
         if (!response.result) return setErreurString(response.error);
         router.push(`game/${gameNameInput.value}/${response.data.playerId};false`);
