@@ -1,6 +1,7 @@
 .main {
     height: 100vh;
     display: flex;
+    background-color: lightgray;
 }
 .page{
     padding:30px;

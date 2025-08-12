@@ -27,27 +27,7 @@
     align-items: stretch;
 
 }
-.link {
-    background-color: rgb(0, 0, 0);
-    font-size: 2rem;
-    color: azure;
-    border-radius: 50px;
-    border: none;
-    margin: 40px;
-    padding: 20px;
-    text-decoration: none;
-}
-.link:hover {
-    background-color: rgb(110, 110, 110);
-    cursor: pointer;
-    transition: ease-in-out 0.3s;
-    scale: 1.02;
-}
-.link:active {
-    background-color: rgb(3, 3, 3);
-    transition: ease-in-out 0.05s;
-    scale: 0.97;
-}
+
 
 @keyframes movement {
     from{

@@ -2,36 +2,43 @@ import { useState } from "react";
 import { useOnChange } from "@/customHooks";
 import { useRouter } from "next/router";
 import styles from "@/styles/NewGame.module.css";
+import btnStyle from "@/styles/button.module.css";
 import { gameApiServices } from "@/services";
+import { Button } from "./Button";
+import { Input } from "./Input";
 
 const NewGame = () => {
     const router = useRouter();
-    const input = useOnChange("");
-    const [erreurString, setErreurString] = useState("");
-    const handleValidate =async () => {
+    const gameNameInput = useOnChange("");
+    const userNameInput = useOnChange("");
+    const [erreurString, setErreurString] = useState<string>("");
 
-        if (input.value === "") return setErreurString("Inputs non remplis");
+    const handleValidate = async () => {
+        setErreurString("")
+        if (gameNameInput.value === "" || userNameInput.value === "") return setErreurString("Inputs non remplis");
         setErreurString("");
-        const response = await gameApiServices.newGame(input.value,"Gérard")
+        const response = await gameApiServices.newGame(gameNameInput.value, userNameInput.value);
         if (!response.result) return setErreurString(response.error);
-        router.push(`game/${input.value}/${response.data.playerId};false`);
+        router.push(`game/${gameNameInput.value}/${response.data.playerId};false`);
     };
 
     return (
         <div className={styles.main}>
+            <h1>Création de partie</h1>
             <div className={styles.content}>
-                <input
-                    className={styles.input}
+                <Input
                     placeholder="Nom de la partie"
-                    {...input}
+                    {...gameNameInput}
                 />
-                {erreurString && <span className={styles.errMessage}> {erreurString}</span>}
-                <button
-                    className={styles.btn}
+                <Input
+                    placeholder="Nom du joueur"
+                    {...userNameInput}
+                />
+                <span className={styles.errMessage}> {erreurString && erreurString}</span>
+                <Button
+                    text="Créer partie"
                     onClick={handleValidate}
-                >
-                    Prêt
-                </button>
+                />
             </div>
         </div>
     );

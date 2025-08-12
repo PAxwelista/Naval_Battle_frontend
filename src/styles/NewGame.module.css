@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    background-color: aqua;
+    background-color: lightgray;
 }
 .content {
     display: flex;
@@ -13,16 +13,9 @@
     align-items: stretch;
     text-align: center;
 }
-.input {
-    margin: 20px;
-    padding: 20px;
-    border-radius: 20px;
-}
-.btn {
-    margin: 20px;
-    padding: 20px;
-    border-radius: 20px;
-}
 .errMessage {
     color: red;
+    height: 30px;
+
 }
+

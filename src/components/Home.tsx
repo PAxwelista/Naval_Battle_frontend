@@ -1,29 +1,26 @@
 import styles from "@/styles/Home.module.css";
+import btnStyle from "@/styles/button.module.css";
 import Link from "next/link";
+import { Button } from "./Button";
 
-const  Home=()=> {
+const Home = () => {
     return (
         <div className={styles.main}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Welcome to the Battle!</h1>
             </div>
             <div className={styles.content}>
-                <Link
+                <Button
+                    text="Nouvelle partie"
                     href="/newGame"
-                    className={styles.link}
-                >
-                    Nouvelle partie
-                </Link>
-                <Link
+                />
+                <Button
+                    text="Rejoindre partie"
                     href="/joinGame"
-                    className={styles.link}
-                >
-                    Rejoindre partie
-                </Link>
+                />
             </div>
         </div>
     );
-}
+};
 
-
-export  {Home}
+export { Home };
