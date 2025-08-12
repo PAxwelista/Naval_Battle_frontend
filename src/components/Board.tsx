@@ -1,9 +1,9 @@
 import styles from "@/styles/Board.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardType, Pos, SubDragInfosType, SubmarineType } from "@/types";
+import { BoardType, Grid, Pos, SubDragInfosType, SubmarineType } from "@/types";
 import {
+    canFitInTile,
     changeGrid,
-    gridIncludesValuesInPositions,
     replaceValuesOnGrid,
     subDragInfosToPositions,
     tranformInitSubPosToSubmarines,
@@ -27,9 +27,10 @@ export const Board = ({
     dragPos,
     isGameStart,
 }: BoardType) => {
-    const [submarines, setSubmarines] = useState<SubmarineType[]|undefined>(dragPos?
-        tranformInitSubPosToSubmarines(initialSubmarines, TILE_SIZE, handleDragStart):undefined
+    const [submarines, setSubmarines] = useState<SubmarineType[] | undefined>(
+        dragPos ? tranformInitSubPosToSubmarines(initialSubmarines, TILE_SIZE, handleDragStart) : undefined
     );
+    const [dragHoverBoardPos, setDragHoverBoardPos] = useState<Pos | undefined>();
 
     useEffect(() => {
         rotateSub();
@@ -52,18 +53,6 @@ export const Board = ({
         setSubmarines(submarines =>
             submarines?.map((v, i) => (i != SubIndex ? v : { ...v, dragPos: { x, y }, boardPos: undefined }))
         );
-    };
-
-    const canFitInTile = (pos: Pos) => {
-        if (subDragInfos) {
-            const positions = subDragInfosToPositions(
-                subDragInfos.horizontal,
-                pos,
-                subDragInfos.subSize,
-                subDragInfos.dragSectionIndex
-            );
-            return gridIncludesValuesInPositions(grid, positions, ["-", "P", subDragInfos.index.toString()]);
-        }
     };
 
     const rotateSub = () => {
@@ -91,6 +80,26 @@ export const Board = ({
             shiftX: prev.shiftX - OffetX,
             shiftY: prev.shiftY - OffetY,
         }));
+        removeAllPInGrid();
+
+        dragHoverBoardPos &&
+            canFitInTile(
+                grid,
+                dragHoverBoardPos,
+                !subDragInfos.horizontal,
+                subDragInfos.subSize,
+                subDragInfos.dragSectionIndex,
+                subDragInfos.index
+            ) &&
+            changeBoard(
+                subDragInfosToPositions(
+                    !subDragInfos.horizontal,
+                    dragHoverBoardPos,
+                    subDragInfos.subSize,
+                    subDragInfos.dragSectionIndex
+                ),
+                "P"
+            );
     };
 
     const changeBoard = (positions: Pos[], newValue: string) => {
@@ -101,8 +110,21 @@ export const Board = ({
         setGrid(prevGrid => replaceValuesOnGrid(prevGrid, index, "-"));
     };
 
+    const removeAllPInGrid = (): void => {
+        setGrid(prevGrid => replaceValuesOnGrid(prevGrid, "P", "-"));
+    };
+
     const onDragEnter = (pos: Pos) => {
-        canFitInTile(pos) &&
+        setDragHoverBoardPos(pos);
+        subDragInfos &&
+            canFitInTile(
+                grid,
+                pos,
+                subDragInfos.horizontal,
+                subDragInfos.subSize,
+                subDragInfos.dragSectionIndex,
+                subDragInfos.index
+            ) &&
             subDragInfos &&
             changeBoard(
                 subDragInfosToPositions(
@@ -116,11 +138,23 @@ export const Board = ({
     };
 
     const onDragLeave = () => {
-        setGrid(prevGrid => prevGrid.map(line => line.map(boardCase => (boardCase === "P" ? "-" : boardCase))));
+        setDragHoverBoardPos(undefined);
+        removeAllPInGrid();
     };
 
     const onDrop = (pos: Pos) => {
-        if (subDragInfos && changeBoardPos && canFitInTile(pos)) {
+        if (
+            subDragInfos &&
+            changeBoardPos &&
+            canFitInTile(
+                grid,
+                pos,
+                subDragInfos.horizontal,
+                subDragInfos.subSize,
+                subDragInfos.dragSectionIndex,
+                subDragInfos.index
+            )
+        ) {
             removeOldSubPos(subDragInfos.index.toString());
 
             changeBoard(

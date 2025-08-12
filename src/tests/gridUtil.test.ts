@@ -4,6 +4,8 @@ import {
     createEmptyGrid,
     replaceValuesOnGrid,
     subDragInfosToPositions,
+    tranformInitSubPosToSubmarines,
+    canFitInTile,
 } from "@/utils";
 
 describe("createEmptyGrid function", () => {
@@ -155,4 +157,74 @@ describe("subDragInfosToPositions function", () => {
     });
 });
 
-subDragInfosToPositions;
+describe("tranformInitSubPosToSubmarines frunction", () => {
+    it("should return the correct submarines", () => {
+        const tileSize = 7
+        const initialSubmarines = [
+            {
+                pos: { x: 50, y: -40 },
+                subSize: 2,
+                horizontal: false,
+            },
+            {
+                pos: { x: 400, y: 50 },
+                subSize: 3,
+                horizontal: true,
+            },
+        ];
+        const jestFunction = jest.fn();
+        const expected = [
+            {
+                boardPos: undefined,
+                dragPos: { x: 50, y: -40 },
+                handleDragStart: jestFunction,
+                horizontal: false,
+                index: 0,
+                pos: { x: 50, y: -40 },
+                subSize: 2,
+                tileSize,
+            },
+            {
+                boardPos: undefined,
+                dragPos: { x: 400, y: 50 },
+                handleDragStart: jestFunction,
+                horizontal: true,
+                index: 1,
+                pos: { x: 400, y: 50 },
+                subSize: 3,
+                tileSize,
+            },
+        ];
+        const submarines = tranformInitSubPosToSubmarines(initialSubmarines, tileSize, jestFunction);
+        expect(submarines).toEqual(expected);
+    });
+});
+
+describe("canFitInTile function" , ()=>{
+    it("should return false if the sub is off limit" , ()=>{
+        const grid = createEmptyGrid("-",8)
+        const positions = [{x:6,y:1} ,{x:9,y:10},{x:-3,y:3} ]
+       
+
+        positions.forEach(pos=>expect(canFitInTile(grid,pos,true,3,0,1)).toBeFalsy())
+        
+    })
+    it("should return false if the sub has less than 1 size" , ()=>{
+        const grid = createEmptyGrid("-",8)
+        const pos = {x:2,y:2}
+        const result = canFitInTile(grid,pos,true,0,0,1)
+        expect(result).toBeFalsy()
+    })
+    it("should return false if dragIndex is equal or larger than size" ,()=>{
+        const grid = createEmptyGrid("-",8)
+        const pos = {x:2,y:2}
+        const result = canFitInTile(grid,pos,true,3,3,1)
+        expect(result).toBeFalsy()
+    })
+    it("should return true if the sub can fit" , ()=>{
+        const grid = createEmptyGrid("-",8)
+        const pos = {x:2,y:2}
+        const result = canFitInTile(grid,pos,true,3,2,1)
+        expect(result).toBeTruthy()
+    })
+})
