@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import subStyle from "@/styles/Submarine.module.css";
 import { Board } from "./Board";
-import { GameProps, Grid, SubmarineType, SubDragInfosType, Pos } from "@/types";
+import { GameProps, Grid, SubDragInfosType, Pos } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
@@ -26,19 +26,16 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [ready, setReady] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
     const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
-    const firstRun = useRef(true);
 
-    const isGameStart = nbPlayerReady === 2;
     useEffect(() => {
         return () => {
-            if (firstRun.current) {
-                firstRun.current = false;
-                return;
-            }
-            if (isJoining) return;
+            if (isJoining === "true") return;
             handleEndGame();
         };
     }, []);
+
+    const isGameStart = nbPlayerReady === 2;
+
     usePusherChannel(
         gameName,
         ["joinGame", "initialiseBoard", "shoot"],
