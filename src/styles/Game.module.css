@@ -5,15 +5,16 @@
     flex-direction: column;
     min-height: 100vh;
     min-width: 100vw;
+    touch-action: none;
 }
 .playBoards {
     display: flex;
     justify-content: space-around;
 }
 
-.text{
-    text-align:center;
+.text {
+    text-align: center;
 }
-.message{
-    height:20px;
+.message {
+    height: 20px;
 }

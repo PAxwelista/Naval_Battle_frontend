@@ -85,11 +85,17 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         }
     };
 
-    const onMouseMove = (event: React.MouseEvent) => {
+    // const onMouseMove = (event: React.MouseEvent) => {
+    //     if (subDragInfos.index >= 0) {
+    //         setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
+    //     }
+    // };
+    const onPointerMove =(event : React.PointerEvent)=>{
+        event.preventDefault()
         if (subDragInfos.index >= 0) {
             setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
         }
-    };
+    }
 
     const handleReady = async () => {
         const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
@@ -100,7 +106,8 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         setReady(response.result);
     };
 
-    const handleClick = async (pos: { x: number; y: number }): Promise<void> => {
+    const handleClick = async (
+        pos: { x: number; y: number }): Promise<void> => {
         setMessage("");
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
@@ -125,7 +132,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         <div
             tabIndex={0}
             className={styles.main}
-            onMouseMove={onMouseMove}
+            onPointerMove={onPointerMove}
             onKeyDown={handlePressButton}
             style={style}
         >

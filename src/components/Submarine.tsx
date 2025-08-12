@@ -17,7 +17,7 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
         return () => window.removeEventListener("mouseup", onEndDrag);
     }, [isDragging]);
 
-    const handleOnStartDrag = (event: React.MouseEvent) => {
+    const handleOnPointerDown = (event: React.PointerEvent) => {
         setIsDragging(true);
         const target = event.target as HTMLDivElement;
         const sub = target.closest(".submarine") as HTMLDivElement;
@@ -62,7 +62,7 @@ const Submarine = ({ boardPos, dragPos, tileSize, subSize, handleDragStart, inde
 
     return (
         <div
-            onMouseDown={handleOnStartDrag}
+            onPointerDown={handleOnPointerDown}
             style={subStyle}
             className={`${styles.submarine} submarine`}
         >
