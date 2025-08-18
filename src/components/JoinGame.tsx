@@ -4,8 +4,10 @@ import { gameApiServices } from "@/services";
 import { Game } from "@/types";
 import { GameDisplay } from "./GameDisplay";
 import styles from "../styles/JoinGame.module.css";
+import { useTranslation } from "react-i18next";
 
 const JoinGame = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const [games, setGames] = useState<Game[]>([]);
     const [message, setMessage] = useState<string>("");
@@ -34,14 +36,15 @@ const JoinGame = () => {
 
     return (
         <div className={styles.main}>
-        <div className={styles.page}>
-            <div className={styles.header}>
-                <h1>Liste des parties en cours</h1>
-                <p>{message}</p>
-            </div>
+            <div className={styles.page}>
+                <div className={styles.header}>
+                    <h1>{t("CurrentGameList")}</h1>
+                    <p>{message}</p>
+                </div>
 
-            <div className={styles.body}>{Servers}</div>
-        </div></div>
+                <div className={styles.body}>{Servers}</div>
+            </div>
+        </div>
     );
 };
 

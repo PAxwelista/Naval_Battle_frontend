@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import subStyle from "@/styles/Submarine.module.css";
 import { Board } from "./Board";
@@ -6,6 +6,9 @@ import { GameProps, Grid, SubDragInfosType, Pos } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
+import { pusher } from "@/lib/pusher";
+import { useTranslation } from "react-i18next";
+
 
 const defaultSubDragInfos = {
     horizontal: true,
@@ -17,6 +20,7 @@ const defaultSubDragInfos = {
 };
 
 export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
+    const { t } = useTranslation();
     const [playerGrid, setPlayerGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [opponentGrid, setOpponentGrid] = useState<Grid>(createEmptyGrid("-", 8));
     const [rotateSubSwitch, setRotateSubSwitch] = useState<boolean>(false);
@@ -29,6 +33,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
 
     useEffect(() => {
         return () => {
+            pusher.disconnect()
             if (isJoining === "true") return;
             handleEndGame();
         };
@@ -45,23 +50,23 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     function handleJoinGame(data: Record<string, string>): void {
         const { playerId: bindPlayerId } = data;
         if (bindPlayerId === playerId) return;
-        setMessage("Le deuxième joueur vient de rejoindre la partie");
+        setMessage(t("APlayerHasJoinedTheGame"));
         setHasTwoPlayers(true);
     }
     function handleInitialiseBoard(data: Record<string, string>): void {
         const { playerId: bindPlayerId } = data;
         setNbPlayerReady(nbPlayer => nbPlayer + 1);
         if (nbPlayerReady >= 1) {
-            return setMessage("La partie peux commencer");
+            return setMessage(t("TheGameCanBegin"));
         }
         if (bindPlayerId === playerId) return;
-        setMessage("Le deuxième joueur vous attend");
+        setMessage(t("TheOtherPlayerIsWaiting"));
     }
     function handleShoot(data: Record<string, string>): void {
         const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
         if (data.playerId === playerId) return;
 
-        setMessage(`Le deuxième joueur vous à ${shootSuccessfull ? "touché" : "raté"}`);
+        setMessage(`${shootSuccessfull ? t("TheOtherPlayerHitYou") : t("TheOtherPlayerMissYou")}`);
         setPlayerGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) =>
@@ -70,7 +75,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             )
         );
         if (gameEnd) {
-            setMessage("La partie est fini, vous avez perdu");
+            setMessage(`${t("TheGameIsFinished")}, ${t("YouLose")}`);
             return handleEndGame();
         }
     }
@@ -102,7 +107,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         if (!response.result) {
             setMessage(response.error);
         }
-        if (nbPlayerReady < 1) setMessage("En attente de l'autre joueur");
+        if (nbPlayerReady < 1) setMessage(t("WaitingForTheOtherPlayer"));
         setReady(response.result);
     };
 
@@ -113,14 +118,14 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         const response = await gameApiServices.shoot(gameName, playerId, pos);
         if (!response.result) return setMessage(response.error);
 
-        setMessage(`Vous avez ${response.data.shootSuccessfull ? "touché" : "raté"}`);
+        setMessage(`${response.data.shootSuccessfull ? t("YouHit") : t("YouMissTheShoot")}`);
         setOpponentGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
             )
         );
         if (response.data.gameEnd) {
-            setMessage("La partie est fini, vous avez gagné");
+            setMessage(`${t("TheGameIsFinished")}, ${t("YouWin")}`);
             return handleEndGame();
         }
     };
@@ -136,12 +141,12 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             onKeyDown={handlePressButton}
             style={style}
         >
-            <h1 className={styles.text}>Partie : {gameName}</h1>
+            <h1 className={styles.text}>{t("Game")} : {gameName}</h1>
 
             <p className={`${styles.message} ${styles.text}`}>{message && message}</p>
             <div className={styles.playBoards}>
                 <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted}>
-                    <p className={styles.text}>Votre terrain</p>
+                    <p className={styles.text}>{t("PlaceHere")}</p>
                     <Board
                         subDragInfos={subDragInfos}
                         setSubDragInfos={setSubDragInfos}
@@ -154,7 +159,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 </div>
 
                 <div>
-                    <p className={styles.text}>Le terrain de l'adversaire</p>
+                    <p className={styles.text}>{t("ShootHere")}</p>
                     <Board
                         subDragInfos={null}
                         onClick={handleClick}
@@ -168,7 +173,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 onClick={handleReady}
                 disabled={!hasTwoPlayers || ready}
             >
-                Prêt
+                {t("Ready")}
             </button>
         </div>
     );

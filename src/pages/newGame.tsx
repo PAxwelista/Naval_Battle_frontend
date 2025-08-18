@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { NewGame } from "@/components";
+import { Header, NewGame } from "@/components";
 
 export default function NewGamePage() {
     return (
@@ -7,7 +7,10 @@ export default function NewGamePage() {
             <Head>
                 <title>New game</title>
             </Head>
-            <NewGame />
+            <>
+                <Header />
+                <NewGame />
+            </>
         </>
     );
 }

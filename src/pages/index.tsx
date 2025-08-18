@@ -1,5 +1,6 @@
 import Head from "next/head";
-import { Home } from "@/components";
+import { Header, Home } from "@/components";
+import "../i18n";
 
 export default function Index() {
     return (
@@ -7,7 +8,10 @@ export default function Index() {
             <Head>
                 <title>Naval Battle</title>
             </Head>
-            <Home />
+            <>
+                <Header />
+                <Home />
+            </>
         </>
     );
 }

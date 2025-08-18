@@ -1,19 +1,21 @@
 import styles from "@/styles/Home.module.css";
 import { Button } from "./Button";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+    const { t } = useTranslation();
     return (
         <div className={styles.main}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Welcome to the Battle!</h1>
+                <h1 className={styles.title}>{t("HomeTitle")}</h1>
             </div>
             <div className={styles.content}>
                 <Button
-                    text="Nouvelle partie"
+                    text={t("NewGame")}
                     href="/newGame"
                 />
                 <Button
-                    text="Rejoindre partie"
+                    text={t("JoinGame")}
                     href="/joinGame"
                 />
             </div>

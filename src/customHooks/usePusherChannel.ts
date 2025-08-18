@@ -18,7 +18,6 @@ export const usePusherChannel = (
                 if (onEvents[i]) channel.unbind(eventName, onEvents[i]);
             });
             pusher.unsubscribe(channelName);
-            channel.disconnect();
         };
     }, [channelName, eventNames, onEvents]);
 };

@@ -6,3 +6,4 @@ export * from "./NewGame";
 export * from "./Board";
 export * from "./Submarine";
 export * from "./GameDisplay"
+export * from "./Header"

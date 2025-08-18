@@ -1,0 +1,36 @@
+.main {
+    position: absolute;
+    width: 100%;
+}
+.buttons{
+    margin:10px;
+    display: flex;
+    justify-content:space-between;
+}
+.homeButton {
+    margin:0px 10px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    height: 36px;
+    width: 36px;
+    border:none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.homeButton,.button:hover{
+    cursor: pointer;
+}
+.homeButton,.button:active{
+    background-color: lightgray;
+}
+.button{
+    background-color: rgba(250, 235, 215, 0);
+    margin:0px 10px;
+    border: none;
+    border-radius: 50%;
+}
+.flag{
+    
+    font-size:xx-large;
+}

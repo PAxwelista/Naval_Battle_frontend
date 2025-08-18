@@ -6,8 +6,10 @@ import { gameApiServices } from "@/services";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { isAlphanumeric } from "@/utils/string";
+import { useTranslation } from "react-i18next";
 
 const NewGame = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const gameNameInput = useOnChange("");
     const userNameInput = useOnChange("");
@@ -25,19 +27,19 @@ const NewGame = () => {
 
     return (
         <div className={styles.main}>
-            <h1>Création de partie</h1>
+            <h1>{t("GameCreation")}</h1>
             <div className={styles.content}>
                 <Input
-                    placeholder="Nom de la partie"
+                    placeholder={t("GameName")}
                     {...gameNameInput}
                 />
                 <Input
-                    placeholder="Nom du joueur"
+                    placeholder={t("PlayerName")}
                     {...userNameInput}
                 />
                 <span className={styles.errMessage}> {erreurString && erreurString}</span>
                 <Button
-                    text="Créer partie"
+                    text={t("CreateGame")}
                     onClick={handleValidate}
                 />
             </div>
