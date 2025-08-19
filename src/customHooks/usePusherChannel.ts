@@ -7,8 +7,8 @@ export const usePusherChannel = (
     onEvents: ((message: Record<string,string>) => void)[]
 ) => {
     useEffect(() => {
+        console.log("test")
         const channel = pusher.subscribe(channelName);
-
         eventNames.forEach((eventName, i) => {
             if (onEvents[i]) channel.bind(eventName, onEvents[i]);
         });
@@ -19,5 +19,5 @@ export const usePusherChannel = (
             });
             pusher.unsubscribe(channelName);
         };
-    }, [channelName, eventNames, onEvents]);
+    }, [channelName, eventNames,onEvents]);
 };

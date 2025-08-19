@@ -1,6 +1,7 @@
 import pusherJs from "pusher-js";
 
-export const pusher = new pusherJs("1efb5cc2be2496875fb4", {
+const pusherApiKey = process.env.NEXT_PUBLIC_PUSHER_API_KEY || "";
+
+export const pusher = new pusherJs(pusherApiKey, {
     cluster: "eu",
-    channelAuthorization: { transport: "ajax", endpoint: "http://localhost:3000/pusher/auth" },
 });

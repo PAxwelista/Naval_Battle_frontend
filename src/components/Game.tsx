@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "@/styles/Game.module.css";
 import subStyle from "@/styles/Submarine.module.css";
 import { Board } from "./Board";
@@ -8,7 +8,6 @@ import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
 import { pusher } from "@/lib/pusher";
 import { useTranslation } from "react-i18next";
-
 
 const defaultSubDragInfos = {
     horizontal: true,
@@ -31,9 +30,11 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [message, setMessage] = useState<string>("");
     const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
 
+    const stableEventNames = useMemo(() => ["joinGame", "initialiseBoard", "shoot"], []);
+
     useEffect(() => {
         return () => {
-            pusher.disconnect()
+            pusher.disconnect();
             if (isJoining === "true") return;
             handleEndGame();
         };
@@ -41,19 +42,14 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
 
     const isGameStart = nbPlayerReady === 2;
 
-    usePusherChannel(
-        gameName,
-        ["joinGame", "initialiseBoard", "shoot"],
-        [handleJoinGame, handleInitialiseBoard, handleShoot]
-    );
-
-    function handleJoinGame(data: Record<string, string>): void {
+    const handleJoinGame = useCallback((data: Record<string, string>): void => {
         const { playerId: bindPlayerId } = data;
         if (bindPlayerId === playerId) return;
         setMessage(t("APlayerHasJoinedTheGame"));
         setHasTwoPlayers(true);
-    }
-    function handleInitialiseBoard(data: Record<string, string>): void {
+    }, []);
+
+    const handleInitialiseBoard = useCallback((data: Record<string, string>): void => {
         const { playerId: bindPlayerId } = data;
         setNbPlayerReady(nbPlayer => nbPlayer + 1);
         if (nbPlayerReady >= 1) {
@@ -61,8 +57,9 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         }
         if (bindPlayerId === playerId) return;
         setMessage(t("TheOtherPlayerIsWaiting"));
-    }
-    function handleShoot(data: Record<string, string>): void {
+    }, []);
+
+    const handleShoot = useCallback((data: Record<string, string>): void => {
         const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
         if (data.playerId === playerId) return;
 
@@ -78,7 +75,9 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             setMessage(`${t("TheGameIsFinished")}, ${t("YouLose")}`);
             return handleEndGame();
         }
-    }
+    }, []);
+    const stableOnEvents = useMemo(() => [handleJoinGame, handleInitialiseBoard, handleShoot], []);
+    usePusherChannel(gameName, stableEventNames, stableOnEvents);
 
     const handleEndGame = () => {
         gameApiServices.endGame(gameName);
@@ -95,28 +94,28 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     //         setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
     //     }
     // };
-    const onPointerMove =(event : React.PointerEvent)=>{
-        event.preventDefault()
+    const onPointerMove = (event: React.PointerEvent) => {
+        event.preventDefault();
         if (subDragInfos.index >= 0) {
             setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
         }
-    }
+    };
 
     const handleReady = async () => {
         const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
         if (!response.result) {
-            setMessage(response.error);
+            setMessage(response.error === "The game can begin" ? t("TheGameCanBegin") : response.error);
         }
         if (nbPlayerReady < 1) setMessage(t("WaitingForTheOtherPlayer"));
         setReady(response.result);
     };
 
-    const handleClick = async (
-        pos: { x: number; y: number }): Promise<void> => {
+    const handleClick = async (pos: { x: number; y: number }): Promise<void> => {
         setMessage("");
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
-        if (!response.result) return setMessage(response.error);
+        if (!response.result)
+            return setMessage(response.error === "Wrong player is playing" ? t("ItsNotYourTurn") : response.error);
 
         setMessage(`${response.data.shootSuccessfull ? t("YouHit") : t("YouMissTheShoot")}`);
         setOpponentGrid(grid =>
@@ -141,7 +140,9 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             onKeyDown={handlePressButton}
             style={style}
         >
-            <h1 className={styles.text}>{t("Game")} : {gameName}</h1>
+            <h1 className={styles.text}>
+                {t("Game")} : {gameName}
+            </h1>
 
             <p className={`${styles.message} ${styles.text}`}>{message && message}</p>
             <div className={styles.playBoards}>
