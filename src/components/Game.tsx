@@ -6,7 +6,6 @@ import { GameProps, Grid, SubDragInfosType, Pos } from "@/types";
 import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
-import { pusher } from "@/lib/pusher";
 import { useTranslation } from "react-i18next";
 
 const defaultSubDragInfos = {
@@ -34,7 +33,6 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
 
     useEffect(() => {
         return () => {
-            pusher.disconnect();
             if (isJoining === "true") return;
             handleEndGame();
         };
