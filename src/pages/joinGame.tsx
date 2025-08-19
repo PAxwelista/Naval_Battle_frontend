@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { JoinGame } from "@/components";
+import { Header, JoinGame } from "@/components";
 
 export default function JoinGamePage() {
     return (
@@ -7,7 +7,10 @@ export default function JoinGamePage() {
             <Head>
                 <title>Join game</title>
             </Head>
-            <JoinGame />
+            <>
+                <Header />
+                <JoinGame />
+            </>
         </>
     );
 }

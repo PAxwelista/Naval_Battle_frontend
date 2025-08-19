@@ -1,7 +1,6 @@
 import Head from "next/head";
-import { Game } from "@/components";
+import { Game, Header } from "@/components";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 
 export default function GamePage() {
     const router = useRouter();
@@ -13,11 +12,14 @@ export default function GamePage() {
                 <title>Game</title>
             </Head>
             {game ? (
-                <Game
-                    gameName={game}
-                    playerId={playerIdAndIsJoining.split(";")[0]}
-                    isJoining={playerIdAndIsJoining.split(";")[1]}
-                />
+                <>
+                    <Header />
+                    <Game
+                        gameName={game}
+                        playerId={playerIdAndIsJoining.split(";")[0]}
+                        isJoining={playerIdAndIsJoining.split(";")[1]}
+                    />
+                </>
             ) : (
                 <div>Chargement de la page impossible</div>
             )}
