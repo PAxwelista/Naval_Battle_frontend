@@ -3,17 +3,40 @@
     display: flex;
     background-color: lightgray;
 }
-.page{
-    padding:30px;
+.page {
+    padding: 30px;
     display: flex;
-    flex:1; 
+    flex: 1;
     flex-direction: column;
     text-align: center;
 }
-.header{
-    flex:1
+.header {
+    flex: 1;
 }
-.body{
-    flex:10;
-    
+.body {
+    flex: 10;
+}
+.title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.refresh {
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    border: none;
+    margin: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.refresh:hover {
+    cursor: pointer;
+}
+.refresh:active {
+    background-color: rgb(188, 186, 186);
 }

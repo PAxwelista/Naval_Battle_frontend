@@ -30,7 +30,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
 
     const stableEventNames = useMemo(() => ["joinGame", "initialiseBoard", "shoot"], []);
-    console.log(nbPlayerReady);
+
     useEffect(() => {
         return () => {
             if (isJoining === "true") return;
@@ -100,7 +100,6 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const handleReady = async () => {
         const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
         if (!response.result) {
-            console.log(response.result);
             setMessage(response.error === "The game can begin" ? "TheGameCanBegin" : response.error);
         }
         if (nbPlayerReady < 1) setMessage("WaitingForTheOtherPlayer");

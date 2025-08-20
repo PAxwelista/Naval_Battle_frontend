@@ -5,19 +5,24 @@ import { Game } from "@/types";
 import { GameDisplay } from "./GameDisplay";
 import styles from "../styles/JoinGame.module.css";
 import { useTranslation } from "react-i18next";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
 
 const JoinGame = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const [games, setGames] = useState<Game[]>([]);
     const [message, setMessage] = useState<string>("");
+    const [refresh, setRefresh] = useState<boolean>(false);
+
     useEffect(() => {
         (async () => {
             const response = await gameApiServices.getChannels();
             if (!response.result) return setMessage(`Erreur : ${response.error}`);
             setGames(response.data);
         })();
-    }, []);
+    }, [refresh]);
+
     const handleClick = async (channel: string) => {
         const response = await gameApiServices.joinGame(channel, "Axel");
 
@@ -38,7 +43,16 @@ const JoinGame = () => {
         <div className={styles.main}>
             <div className={styles.page}>
                 <div className={styles.header}>
-                    <h1>{t("CurrentGameList")}</h1>
+                    <div className={styles.title}>
+                        <h1>{t("CurrentGameList")}</h1>
+                        <button
+                            className={styles.refresh}
+                            onClick={() => setRefresh(value => !value)}
+                        >
+                            <FontAwesomeIcon icon={faArrowsRotate} size="2x" />
+                        </button>
+                    </div>
+
                     <p>{message}</p>
                 </div>
 
