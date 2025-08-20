@@ -8,9 +8,8 @@ export type BoardType = {
     onClick?: (pos: Pos) => Promise<void>;
     grid: Grid;
     setGrid: React.Dispatch<React.SetStateAction<Grid>>;
-    submarines?: SubmarineType[];
     rotateSubSwitch?: boolean;
     setSubDragInfos?: React.Dispatch<React.SetStateAction<SubDragInfosType>>;
     dragPos?: Pos;
-    isGameStart?: boolean;
+    ready?: boolean;
 };

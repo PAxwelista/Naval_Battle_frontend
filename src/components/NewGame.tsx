@@ -17,9 +17,9 @@ const NewGame = () => {
 
     const handleValidate = async () => {
         setErreurString("");
-        if (gameNameInput.value === "" || userNameInput.value === "") return setErreurString("Inputs non remplis");
+        if (gameNameInput.value === "" || userNameInput.value === "") return setErreurString("InputEmpty");
         if (!isAlphanumeric(gameNameInput.value))
-            return setErreurString("Votre nom de partie n'est pas valide. Lettre et chiffre uniquement");
+            return setErreurString("GameNameInvalid");
         const response = await gameApiServices.newGame(gameNameInput.value, userNameInput.value);
         if (!response.result) return setErreurString(response.error);
         router.push(`game/${gameNameInput.value}/${response.data.playerId};false`);
@@ -37,7 +37,7 @@ const NewGame = () => {
                     placeholder={t("PlayerName")}
                     {...userNameInput}
                 />
-                <span className={styles.errMessage}> {erreurString && erreurString}</span>
+                <span className={styles.errMessage}> {erreurString && t(erreurString)}</span>
                 <Button
                     text={t("CreateGame")}
                     onClick={handleValidate}

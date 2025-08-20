@@ -30,7 +30,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
 
     const stableEventNames = useMemo(() => ["joinGame", "initialiseBoard", "shoot"], []);
-
+    console.log(nbPlayerReady);
     useEffect(() => {
         return () => {
             if (isJoining === "true") return;
@@ -43,25 +43,27 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const handleJoinGame = useCallback((data: Record<string, string>): void => {
         const { playerId: bindPlayerId } = data;
         if (bindPlayerId === playerId) return;
-        setMessage(t("APlayerHasJoinedTheGame"));
+        setMessage("APlayerHasJoinedTheGame");
         setHasTwoPlayers(true);
     }, []);
 
     const handleInitialiseBoard = useCallback((data: Record<string, string>): void => {
         const { playerId: bindPlayerId } = data;
-        setNbPlayerReady(nbPlayer => nbPlayer + 1);
-        if (nbPlayerReady >= 1) {
-            return setMessage(t("TheGameCanBegin"));
-        }
-        if (bindPlayerId === playerId) return;
-        setMessage(t("TheOtherPlayerIsWaiting"));
+        setNbPlayerReady(nbPlayer => {
+            const newNbPlayers = nbPlayer + 1;
+
+            if (newNbPlayers > 1) setMessage("TheGameCanBegin");
+            else if (bindPlayerId !== playerId) setMessage("TheOtherPlayerIsWaiting");
+
+            return newNbPlayers;
+        });
     }, []);
 
     const handleShoot = useCallback((data: Record<string, string>): void => {
         const { shootPosX, shootPosY, shootSuccessfull, gameEnd } = data;
         if (data.playerId === playerId) return;
 
-        setMessage(`${shootSuccessfull ? t("TheOtherPlayerHitYou") : t("TheOtherPlayerMissYou")}`);
+        setMessage(shootSuccessfull ? "TheOtherPlayerHitYou" : "TheOtherPlayerMissYou");
         setPlayerGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) =>
@@ -70,10 +72,11 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             )
         );
         if (gameEnd) {
-            setMessage(`${t("TheGameIsFinished")}, ${t("YouLose")}`);
+            setMessage("TheGameIsFinishedYouLose");
             return handleEndGame();
         }
     }, []);
+
     const stableOnEvents = useMemo(() => [handleJoinGame, handleInitialiseBoard, handleShoot], []);
     usePusherChannel(gameName, stableEventNames, stableOnEvents);
 
@@ -87,11 +90,6 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         }
     };
 
-    // const onMouseMove = (event: React.MouseEvent) => {
-    //     if (subDragInfos.index >= 0) {
-    //         setDragPos({ x: event.pageX - subDragInfos.shiftX, y: event.pageY - subDragInfos.shiftY });
-    //     }
-    // };
     const onPointerMove = (event: React.PointerEvent) => {
         event.preventDefault();
         if (subDragInfos.index >= 0) {
@@ -102,9 +100,10 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const handleReady = async () => {
         const response = await gameApiServices.initialiseBoard(gameName, playerId, playerGrid);
         if (!response.result) {
-            setMessage(response.error === "The game can begin" ? t("TheGameCanBegin") : response.error);
+            console.log(response.result);
+            setMessage(response.error === "The game can begin" ? "TheGameCanBegin" : response.error);
         }
-        if (nbPlayerReady < 1) setMessage(t("WaitingForTheOtherPlayer"));
+        if (nbPlayerReady < 1) setMessage("WaitingForTheOtherPlayer");
         setReady(response.result);
     };
 
@@ -113,19 +112,26 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
         if (!response.result)
-            return setMessage(response.error === "Wrong player is playing" ? t("ItsNotYourTurn") : response.error);
+            return setMessage(
+                response.error === "Wrong player is playing"
+                    ? "ItsNotYourTurn"
+                    : response.error === "Player already shoot at this position"
+                    ? "AlreadyShootAtThisPos"
+                    : response.error
+            );
 
-        setMessage(`${response.data.shootSuccessfull ? t("YouHit") : t("YouMissTheShoot")}`);
+        setMessage(response.data.shootSuccessfull ? "YouHit" : "YouMissTheShoot");
         setOpponentGrid(grid =>
             grid.map((line, i) =>
                 line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
             )
         );
         if (response.data.gameEnd) {
-            setMessage(`${t("TheGameIsFinished")}, ${t("YouWin")}`);
+            setMessage("TheGameIsFinishedYouWin");
             return handleEndGame();
         }
     };
+
     const style = {
         cursor: subDragInfos.index >= 0 && !isGameStart ? "grabbing" : "default",
     };
@@ -142,9 +148,9 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                 {t("Game")} : {gameName}
             </h1>
 
-            <p className={`${styles.message} ${styles.text}`}>{message && message}</p>
+            <p className={`${styles.message} ${styles.text}`}>{message && t(message)}</p>
             <div className={styles.playBoards}>
-                <div className={isGameStart ? subStyle.gameStarted : subStyle.gameNotStarted}>
+                <div className={ready ? subStyle.gameStarted : subStyle.gameNotStarted}>
                     <p className={styles.text}>{t("PlaceHere")}</p>
                     <Board
                         subDragInfos={subDragInfos}
@@ -153,7 +159,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                         setGrid={setPlayerGrid}
                         rotateSubSwitch={rotateSubSwitch}
                         dragPos={dragPos}
-                        isGameStart={isGameStart}
+                        ready={ready}
                     />
                 </div>
 

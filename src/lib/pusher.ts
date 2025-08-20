@@ -6,7 +6,6 @@ const pusherApiKey = process.env.NEXT_PUBLIC_PUSHER_API_KEY || "";
 let pusher: Pusher | null = null;
 
 export const getPusher = () => {
-    console.log("ehre")
     if (!pusher) {
         pusher = new pusherJs(pusherApiKey, { cluster: "eu" });
     }

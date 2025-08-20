@@ -1,6 +1,6 @@
 import styles from "@/styles/Board.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardType, Grid, Pos, SubDragInfosType, SubmarineType } from "@/types";
+import { BoardType, Pos, SimpleSubmarineType, SubDragInfosType, SubmarineType } from "@/types";
 import {
     canFitInTile,
     changeGrid,
@@ -25,10 +25,10 @@ export const Board = ({
     setSubDragInfos,
     rotateSubSwitch,
     dragPos,
-    isGameStart,
+    ready,
 }: BoardType) => {
-    const [submarines, setSubmarines] = useState<SubmarineType[] | undefined>(
-        dragPos ? tranformInitSubPosToSubmarines(initialSubmarines, TILE_SIZE, handleDragStart) : undefined
+    const [submarines, setSubmarines] = useState<SimpleSubmarineType[] | undefined>(
+        dragPos ? tranformInitSubPosToSubmarines(initialSubmarines, TILE_SIZE) : undefined
     );
     const [dragHoverBoardPos, setDragHoverBoardPos] = useState<Pos | undefined>();
 
@@ -40,8 +40,8 @@ export const Board = ({
         subDragInfos && dragPos && changeDragPos(subDragInfos.index, dragPos.x, dragPos.y);
     }, [dragPos]);
 
-    function handleDragStart(dragInfos: SubDragInfosType) {
-        !isGameStart && setSubDragInfos && setSubDragInfos(dragInfos);
+    const handleDragStart=(dragInfos: SubDragInfosType)=> {
+        !ready && setSubDragInfos && setSubDragInfos(dragInfos);
     }
 
     const changeBoardPos = (SubIndex: number, x: number, y: number) => {
@@ -182,6 +182,7 @@ export const Board = ({
         <Submarine
             key={i}
             {...submarine}
+            handleDragStart={handleDragStart}
             tileSize={TILE_SIZE}
         />
     ));

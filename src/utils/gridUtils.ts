@@ -1,4 +1,4 @@
-import { Grid, initialSubType, Pos, SubmarineHandleDragStartType, SubmarineType } from "@/types";
+import { Grid, initialSubType, Pos, SimpleSubmarineType, SubmarineHandleDragStartType, SubmarineType } from "@/types";
 
 export const createEmptyGrid = (value: string, size: number): Grid => {
     return Array.from({ length: size }, () => Array.from({ length: size }, () => value));
@@ -31,27 +31,26 @@ export const subDragInfosToPositions = (horizontal: boolean, pos: Pos, size: num
 
 export const tranformInitSubPosToSubmarines = (
     initialSubmarines: initialSubType[],
-    tileSize: number,
-    handleDragStart: SubmarineHandleDragStartType
-): SubmarineType[] => {
+    tileSize: number
+): SimpleSubmarineType[] => {
     return initialSubmarines.map((v, i) => ({
         ...v,
         dragPos: v.pos,
         tileSize,
         boardPos: undefined,
         index: i,
-        handleDragStart,
     }));
 };
 
-export const canFitInTile = (grid:Grid,pos: Pos, isHorizontal: boolean, size: number, dragSectionIndex: number,subIndex:number): boolean => {
-    if (size<=0 || dragSectionIndex>=size) return false
-    const positions = subDragInfosToPositions(
-        isHorizontal,
-        pos,
-        size,
-        dragSectionIndex
-    );
+export const canFitInTile = (
+    grid: Grid,
+    pos: Pos,
+    isHorizontal: boolean,
+    size: number,
+    dragSectionIndex: number,
+    subIndex: number
+): boolean => {
+    if (size <= 0 || dragSectionIndex >= size) return false;
+    const positions = subDragInfosToPositions(isHorizontal, pos, size, dragSectionIndex);
     return gridIncludesValuesInPositions(grid, positions, ["-", "P", subIndex.toString()]);
 };
-
