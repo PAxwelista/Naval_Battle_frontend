@@ -186,6 +186,8 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             <button
                 onClick={handleReady}
                 disabled={!hasTwoPlayers || ready}
+                className={styles.btn}
+                
             >
                 {t("Ready")}
             </button>

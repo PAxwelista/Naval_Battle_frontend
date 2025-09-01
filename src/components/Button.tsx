@@ -3,7 +3,7 @@ import { ButtonProps } from "@/types";
 import style from "@/styles/Button.module.css";
 import Link from "next/link";
 
-export const Button = ({ text, onClick, href }: ButtonProps) => {
+export const Button = ({ text, onClick, href ,disabled }: ButtonProps) => {
     return href ? (
         <Link
             href={href}
@@ -15,6 +15,7 @@ export const Button = ({ text, onClick, href }: ButtonProps) => {
         <button
             className={style.main}
             onClick={onClick}
+            disabled={disabled}
         >
             {text}
         </button>

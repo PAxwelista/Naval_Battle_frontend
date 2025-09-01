@@ -9,7 +9,6 @@
 }
 
 @media (max-width: 968px) {
-    
     .playBoards {
         display: flex;
         justify-content: center;
@@ -28,4 +27,11 @@
 }
 .message {
     height: 20px;
+}
+.btn {
+    margin:20px;
+    align-self: center;
+    border-radius: 25px;
+    width:150px;
+    height: 50px;
 }
