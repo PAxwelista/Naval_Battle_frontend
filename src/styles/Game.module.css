@@ -7,6 +7,17 @@
     min-width: 100vw;
     touch-action: none;
 }
+
+@media (max-width: 968px) {
+    
+    .playBoards {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+}
+
 .playBoards {
     display: flex;
     justify-content: space-around;
