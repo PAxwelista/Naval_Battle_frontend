@@ -1,6 +1,6 @@
 import styles from "@/styles/Board.module.css";
 import { BoardTile } from "./BoardTile";
-import { BoardType, Pos, SimpleSubmarineType, SubDragInfosType, SubmarineType } from "@/types";
+import { BoardType, Pos, SimpleSubmarineType, SubDragInfosType } from "@/types";
 import {
     canFitInTile,
     changeGrid,
@@ -40,9 +40,9 @@ export const Board = ({
         subDragInfos && dragPos && changeDragPos(subDragInfos.index, dragPos.x, dragPos.y);
     }, [dragPos]);
 
-    const handleDragStart=(dragInfos: SubDragInfosType)=> {
+    const handleDragStart = (dragInfos: SubDragInfosType) => {
         !ready && setSubDragInfos && setSubDragInfos(dragInfos);
-    }
+    };
 
     const changeBoardPos = (SubIndex: number, x: number, y: number) => {
         setSubmarines(submarines =>
@@ -174,8 +174,8 @@ export const Board = ({
         }
     };
 
-    const handleClick = (pos: Pos) => {
-        onClick && onClick(pos);
+    const handleClick = (pos: Pos, pageX: number, pageY: number) => {
+        onClick && onClick(pos, pageX, pageY);
     };
 
     const Submarines = submarines?.map((submarine, i) => (

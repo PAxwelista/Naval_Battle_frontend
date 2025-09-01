@@ -8,7 +8,7 @@ export type BoardTileType = {
     onDrop: (pos: Pos, event: React.MouseEvent) => void;
     onDragLeave: () => void;
     canDragAndDrop: boolean;
-    onClick: Function;
+    onClick: (pos:Pos,pageX:number,pageY:number)=>void;
     fireState: FireState;
     tileSize: number;
 };

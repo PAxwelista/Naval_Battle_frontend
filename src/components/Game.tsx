@@ -7,6 +7,7 @@ import { usePusherChannel } from "@/customHooks";
 import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
 import { useTranslation } from "react-i18next";
+import { Shoot } from "./Shoot";
 
 const defaultSubDragInfos = {
     horizontal: true,
@@ -28,6 +29,8 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     const [ready, setReady] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
     const [dragPos, setDragPos] = useState<Pos>({ x: 0, y: 0 });
+    const [triggerShoot, setTriggerShoot] = useState<boolean>(false);
+    const [shootPos, setShootPos] = useState<{ x: number; y: number }>({ x: 100, y: 100 });
 
     const stableEventNames = useMemo(() => ["joinGame", "initialiseBoard", "shoot"], []);
 
@@ -106,7 +109,12 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
         setReady(response.result);
     };
 
-    const handleClick = async (pos: { x: number; y: number }): Promise<void> => {
+    const handleStartShoot = (pos: Pos) => {
+        setShootPos(pos);
+        setTriggerShoot(prev => !prev);
+    };
+
+    const handleClick = async (pos: { x: number; y: number }, pageX: number, pageY: number): Promise<void> => {
         setMessage("");
         if (!isGameStart) return;
         const response = await gameApiServices.shoot(gameName, playerId, pos);
@@ -118,17 +126,19 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                     ? "AlreadyShootAtThisPos"
                     : response.error
             );
-
-        setMessage(response.data.shootSuccessfull ? "YouHit" : "YouMissTheShoot");
-        setOpponentGrid(grid =>
-            grid.map((line, i) =>
-                line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
-            )
-        );
-        if (response.data.gameEnd) {
-            setMessage("TheGameIsFinishedYouWin");
-            return handleEndGame();
-        }
+        handleStartShoot({ x: pageX, y: pageY });
+        setTimeout(() => {
+            setMessage(response.data.shootSuccessfull ? "YouHit" : "YouMissTheShoot");
+            setOpponentGrid(grid =>
+                grid.map((line, i) =>
+                    line.map((v, j) => (i === pos.y && j === pos.x ? (response.data.shootSuccessfull ? "F" : "X") : v))
+                )
+            );
+            if (response.data.gameEnd) {
+                setMessage("TheGameIsFinishedYouWin");
+                return handleEndGame();
+            }
+        }, 1000);
     };
 
     const style = {
@@ -179,6 +189,11 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
             >
                 {t("Ready")}
             </button>
+            <Shoot
+                triggerShoot={triggerShoot}
+                pos={shootPos}
+                time={1}
+            />
         </div>
     );
 };

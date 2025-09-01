@@ -5,4 +5,7 @@
     box-sizing: border-box;
     text-align: center;
     line-height: 40px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
