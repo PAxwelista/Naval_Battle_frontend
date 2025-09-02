@@ -1,6 +1,7 @@
 .main {
     position: absolute;
     width: 100%;
+    z-index: 2;
 }
 .buttons{
     margin:10px;

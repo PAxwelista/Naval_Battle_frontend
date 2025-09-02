@@ -1,0 +1,19 @@
+.main {
+    display: flex;
+    position: relative;
+}
+.background {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: -2;
+    top: -20vh;
+    left: -20vw;
+}
+.foreGround {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    z-index: 0;
+}

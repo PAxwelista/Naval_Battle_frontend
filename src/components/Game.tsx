@@ -8,6 +8,8 @@ import { createEmptyGrid } from "@/utils";
 import { gameApiServices } from "@/services";
 import { useTranslation } from "react-i18next";
 import { Shoot } from "./Shoot";
+import { Parallax } from "./Parallax";
+import Image from "next/image";
 
 const defaultSubDragInfos = {
     horizontal: true,
@@ -146,56 +148,68 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     };
 
     return (
-        <div
-            tabIndex={0}
-            className={styles.main}
-            onPointerMove={onPointerMove}
-            onKeyDown={handlePressButton}
-            style={style}
+        <Parallax
+            background={
+                <Image
+                height={1000}
+                width={2000}
+                    src={require(`/public/images/backgroundHome.jpg`)}
+                    alt={"war image"}
+                />
+            }
+            backgroundMultiplier={30}
+            foreGroundMultiplier={10}
         >
-            <h1 className={styles.text}>
-                {t("Game")} : {gameName}
-            </h1>
-
-            <p className={`${styles.message} ${styles.text}`}>{message && t(message)}</p>
-            <div className={styles.playBoards}>
-                <div className={ready ? subStyle.gameStarted : subStyle.gameNotStarted}>
-                    <p className={styles.text}>{t("PlaceHere")}</p>
-                    <Board
-                        subDragInfos={subDragInfos}
-                        setSubDragInfos={setSubDragInfos}
-                        grid={playerGrid}
-                        setGrid={setPlayerGrid}
-                        rotateSubSwitch={rotateSubSwitch}
-                        dragPos={dragPos}
-                        ready={ready}
-                    />
-                </div>
-
-                <div>
-                    <p className={styles.text}>{t("ShootHere")}</p>
-                    <Board
-                        subDragInfos={null}
-                        onClick={handleClick}
-                        grid={opponentGrid}
-                        setGrid={setOpponentGrid}
-                    />
-                </div>
-            </div>
-
-            <button
-                onClick={handleReady}
-                disabled={!hasTwoPlayers || ready}
-                className={styles.btn}
-                
+            <div
+                tabIndex={0}
+                className={styles.main}
+                onPointerMove={onPointerMove}
+                onKeyDown={handlePressButton}
+                style={style}
             >
-                {t("Ready")}
-            </button>
-            <Shoot
-                triggerShoot={triggerShoot}
-                pos={shootPos}
-                time={1}
-            />
-        </div>
+                <h1 className={styles.text}>
+                    {t("Game")} : {gameName}
+                </h1>
+
+                <p className={`${styles.message} ${styles.text}`}>{message && t(message)}</p>
+                <div className={styles.playBoards}>
+                    <div className={ready ? subStyle.gameStarted : subStyle.gameNotStarted}>
+                        <p className={styles.text}>{t("PlaceHere")}</p>
+                        <Board
+                            subDragInfos={subDragInfos}
+                            setSubDragInfos={setSubDragInfos}
+                            grid={playerGrid}
+                            setGrid={setPlayerGrid}
+                            rotateSubSwitch={rotateSubSwitch}
+                            dragPos={dragPos}
+                            ready={ready}
+                        />
+                    </div>
+
+                    <div>
+                        <p className={styles.text}>{t("ShootHere")}</p>
+                        <Board
+                            subDragInfos={null}
+                            onClick={handleClick}
+                            grid={opponentGrid}
+                            setGrid={setOpponentGrid}
+                        />
+                    </div>
+                </div>
+
+                <button
+                    onClick={handleReady}
+                    disabled={!hasTwoPlayers || ready}
+                    className={styles.btn}
+                >
+                    {t("Ready")}
+                </button>
+                <Shoot
+                    triggerShoot={triggerShoot}
+                    pos={shootPos}
+                    time={1}
+                />
+            </div>
+        </Parallax>
     );
 };
