@@ -148,18 +148,21 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
     };
 
     return (
-        <Parallax
-            background={
-                <Image
-                height={1000}
-                width={2000}
-                    src={require(`/public/images/backgroundHome.jpg`)}
-                    alt={"war image"}
-                />
+        <>
+            {
+                //     <Parallax
+                //     background={
+                //         <Image
+                //         height={1000}
+                //         width={2000}
+                //             src={require(`/public/images/backgroundHome.jpg`)}
+                //             alt={"war image"}
+                //         />
+                //     }
+                //     backgroundMultiplier={30}
+                //     foreGroundMultiplier={10}
+                // >
             }
-            backgroundMultiplier={30}
-            foreGroundMultiplier={10}
-        >
             <div
                 tabIndex={0}
                 className={styles.main}
@@ -210,6 +213,7 @@ export const Game = ({ gameName, isJoining, playerId }: GameProps) => {
                     time={1}
                 />
             </div>
-        </Parallax>
+            {/* </Parallax> */}
+        </>
     );
 };
